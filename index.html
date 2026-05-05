@@ -1,0 +1,2516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Regore — Parametric Insurance Infrastructure for Autonomous Agents</title>
+<meta name="description" content="Pre-launch parametric insurance protocol for autonomous AI agents. On-chain coverage for financial loss, per-transaction slippage, and data breach events. Currently on testnet."/>
+<meta property="og:title" content="Regore — Parametric Insurance Infrastructure for Autonomous Agents"/>
+<meta property="og:description" content="Pre-launch parametric coverage protocol for autonomous agents. Currently on testnet. Built for stablecoin-denominated, on-chain settlement."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700;800&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  /* ── Regore brand palette ── */
+  --bg:#0B0C1A;
+  --bg-1:#0E0F1E;
+  --bg-2:#111327;
+  --bg-3:#161830;
+  --ink:#EEEEF4;
+  --ink-dim:#9A9DB8;
+  --ink-muted:#5C607E;
+  --ink-faint:#363958;
+  --line:rgba(100,110,180,.09);
+  --line-2:rgba(100,110,180,.16);
+  --line-3:rgba(100,110,180,.26);
+  /* Brand accent — electric blue from the gradient */
+  --accent:#4B7BFF;
+  --accent-dim:#3362E0;
+  --accent-bright:#6B97FF;
+  /* Right-side gradient bright — used for glow/shimmer */
+  --glow:#7EB0FF;
+  --glow-white:rgba(180,210,255,.18);
+  /* Legacy signal colors — kept for status indicators */
+  --sol:#8B5CF6;
+  --blue:#4B7BFF;
+  --amber:#F0B050;
+  --red:#E97070;
+  --green:#22D98A;
+  /* Typography — condensed uppercase sans for brand, mono for data */
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --serif:'Barlow Condensed','Arial Narrow',sans-serif;
+  --sans:'Barlow','Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  /* Radii — tighter, more geometric */
+  --r-sm:2px;--r-md:4px;--r-lg:8px;
+  --maxw:1320px;
+  --pad:clamp(20px,4vw,56px);
+}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-weight:400;overflow-x:hidden;line-height:1.5;font-feature-settings:"ss01","cv01"}
+button,input,select,textarea{font-family:inherit;color:inherit}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--accent);color:#fff}
+
+/* CURSOR */
+body{cursor:auto}
+a,button,.faq-q{cursor:pointer}
+
+/* ─────────────────────────────────────────────
+   BACKGROUND LAYERS — brand gradient
+   ───────────────────────────────────────────── */
+#bgc{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(125deg,#0B0C1A 0%,#0F1128 35%,#0E1A40 60%,#1428A0 85%,#2B5FD9 100%);
+}
+.grid-bg{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background-image:
+    linear-gradient(to right,rgba(100,130,255,.025) 1px,transparent 1px),
+    linear-gradient(to bottom,rgba(100,130,255,.025) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 100% 100% at 70% 50%,black 0%,transparent 75%);
+  -webkit-mask-image:radial-gradient(ellipse 100% 100% at 70% 50%,black 0%,transparent 75%);
+  opacity:.8;
+}
+.vign{position:fixed;inset:0;
+  background:radial-gradient(ellipse 90% 80% at 70% 50%,transparent 0%,rgba(11,12,26,.35) 50%,rgba(11,12,26,.7) 100%);
+  z-index:1;pointer-events:none}
+.noise{position:fixed;inset:0;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");pointer-events:none;z-index:2;mix-blend-mode:overlay}
+
+/* ─────────────────────────────────────────────
+   UTILITIES
+   ───────────────────────────────────────────── */
+.container{max-width:var(--maxw);margin:0 auto;padding:0 var(--pad);position:relative;z-index:3}
+.eyebrow{font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.25em;text-transform:uppercase;font-weight:500;display:inline-flex;align-items:center;gap:10px}
+.eyebrow::before{content:'';display:inline-block;width:20px;height:1px;background:var(--accent);opacity:.6}
+.serif{font-family:var(--serif);font-weight:400;font-style:italic;letter-spacing:-.01em}
+.mono{font-family:var(--mono)}
+
+/* ─────────────────────────────────────────────
+   NAV
+   ───────────────────────────────────────────── */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:14px var(--pad);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:rgba(5,7,13,.72);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);transition:border-color .3s,background .3s}
+nav.scrolled{border-color:var(--line-2);background:rgba(5,7,13,.88)}
+.logo{display:flex;align-items:center;gap:11px;cursor:pointer}
+.logo svg{flex-shrink:0;filter:drop-shadow(0 0 8px rgba(75,123,255,.4))}
+.logo-wrap{display:flex;flex-direction:column;line-height:1}
+.logo-name{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--ink);letter-spacing:.14em;text-transform:uppercase}
+.logo-tag{font-family:var(--mono);font-size:8.5px;color:var(--ink-muted);letter-spacing:.18em;text-transform:uppercase;margin-top:3px}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{font-family:var(--mono);font-size:11.5px;color:var(--ink-dim);letter-spacing:.04em;transition:color .2s;font-weight:400;position:relative;padding:4px 0}
+.nav-links a:hover{color:var(--accent)}
+.nav-links a::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:1px;background:var(--accent);transition:width .25s ease}
+.nav-links a:hover::after{width:100%}
+.nav-r{display:flex;gap:10px;align-items:center}
+.btn-ghost{font-family:var(--mono);font-size:11px;padding:9px 18px;background:transparent;border:1px solid var(--line-3);color:var(--ink-dim);border-radius:var(--r-sm);letter-spacing:.06em;transition:all .2s;font-weight:500}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);background:rgba(75,123,255,.04)}
+.btn-solid{font-family:var(--mono);font-size:11px;padding:9px 18px;background:var(--accent);color:var(--bg);border:1px solid var(--accent);border-radius:var(--r-sm);letter-spacing:.06em;font-weight:600;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-solid:hover{background:var(--accent-dim);border-color:var(--accent-dim);transform:translateY(-1px);box-shadow:0 8px 24px -8px rgba(75,123,255,.4)}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px}
+.hamburger span{display:block;width:20px;height:1.5px;background:var(--ink-dim);border-radius:2px;transition:all .3s}
+.hamburger.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg);background:var(--accent)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg);background:var(--accent)}
+
+/* Mobile menu */
+.mob-menu{position:fixed;inset:0;top:56px;background:rgba(5,7,13,.97);backdrop-filter:blur(24px);z-index:150;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:32px 24px;opacity:0;pointer-events:none;transition:opacity .3s}
+.mob-menu.open{opacity:1;pointer-events:all}
+.mob-menu ul{list-style:none;width:100%;margin-bottom:28px}
+.mob-menu ul li a{display:block;font-family:var(--mono);font-size:14px;letter-spacing:.08em;color:var(--ink-dim);padding:16px 0;border-bottom:1px solid var(--line);transition:color .2s}
+.mob-menu ul li a:hover{color:var(--accent)}
+.mob-menu-btns{display:flex;flex-direction:column;gap:10px;width:100%}
+.mob-menu-btns .btn-ghost,.mob-menu-btns .btn-solid{text-align:center;padding:13px}
+
+/* ─────────────────────────────────────────────
+   PROTOCOL STATE BAR — live-feeling metrics
+   ───────────────────────────────────────────── */
+.state-bar{position:relative;z-index:4;padding:10px 0;background:linear-gradient(90deg,rgba(8,11,21,.7),rgba(12,16,32,.5),rgba(8,11,21,.7));border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;margin-top:61px;backdrop-filter:blur(8px)}
+.state-t{display:flex;gap:0;white-space:nowrap;animation:tick 68s linear infinite;will-change:transform}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.state-i{font-family:var(--mono);font-size:10.5px;color:var(--ink-muted);padding:0 22px;letter-spacing:.04em;flex-shrink:0;display:inline-flex;align-items:center;gap:10px}
+.state-i .k{color:var(--ink-dim);text-transform:uppercase;letter-spacing:.14em;font-size:9.5px;font-weight:500}
+.state-i .v{color:var(--ink);font-weight:500}
+.state-i .v.g{color:var(--accent)}
+.state-i .v.a{color:var(--amber)}
+.state-i .sep{width:3px;height:3px;background:var(--line-3);border-radius:50%}
+.state-i .pulse{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+
+/* ─────────────────────────────────────────────
+   HERO — full viewport, two-column
+   ───────────────────────────────────────────── */
+.hero{
+  position:relative;z-index:3;
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  padding:0 var(--pad);
+}
+.hero-grid{
+  max-width:var(--maxw);
+  margin:0 auto;
+  width:100%;
+  display:grid;
+  grid-template-columns:1fr 420px;
+  gap:80px;
+  align-items:center;
+  flex:1;
+  padding:clamp(80px,10vh,120px) 0 clamp(48px,6vh,72px);
+}
+.hero-left{display:flex;flex-direction:column;align-items:flex-start}
+.hero-badge{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:10.5px;color:var(--ink-dim);border:1px solid var(--line-2);padding:7px 14px;border-radius:99px;letter-spacing:.14em;text-transform:uppercase;font-weight:500;animation:fade-up .9s .1s both;background:rgba(12,16,32,.45);backdrop-filter:blur(8px);margin-bottom:32px}
+.hero-badge .dot{width:6px;height:6px;background:var(--accent);border-radius:50%;box-shadow:0 0 10px var(--accent);animation:pulse 1.8s ease-in-out infinite}
+@keyframes fade-up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+h1{font-family:'Barlow Condensed',sans-serif;font-size:clamp(40px,5.4vw,78px);font-weight:700;line-height:1;letter-spacing:-.015em;text-transform:uppercase;animation:fade-up 1s .2s both;margin-bottom:28px;max-width:none;word-break:normal;overflow-wrap:normal;hyphens:none;
+  background:linear-gradient(160deg,#FFFFFF 0%,#E8EEFF 30%,#B8CFFF 60%,#7EB0FF 85%,#4B7BFF 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 2px 24px rgba(75,123,255,.35));
+}
+
+/* Section h2 — same gradient shading */
+.sec-head h2,.prob-head-l h2,.faq-side h2{
+  background:linear-gradient(155deg,#FFFFFF 0%,#DCE8FF 40%,#9BBDFF 75%,#4B7BFF 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 2px 16px rgba(75,123,255,.25));
+}
+.hero-lead{font-size:16px;color:var(--ink-dim);line-height:1.7;max-width:520px;font-weight:300;animation:fade-up 1s .35s both;text-wrap:pretty;margin-bottom:36px}
+.hero-lead strong{color:var(--ink);font-weight:500}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;animation:fade-up 1s .45s both}
+
+/* Hero right */
+.hero-right{animation:fade-up 1s .55s both;display:flex;flex-direction:column;gap:16px}
+.hero-card{background:linear-gradient(160deg,rgba(14,20,40,.9),rgba(8,11,21,.7));border:1px solid var(--line-2);border-radius:var(--r-md);overflow:hidden;backdrop-filter:blur(16px);box-shadow:0 40px 80px -20px rgba(0,0,0,.5),0 0 0 1px rgba(75,123,255,.06)}
+.hero-card-head{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:rgba(8,11,21,.5)}
+.hc-title{font-family:var(--mono);font-size:10px;color:var(--ink-dim);letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.hc-live{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9px;color:var(--accent);letter-spacing:.12em;text-transform:uppercase}
+.hc-live .pulse{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 1.8s ease-in-out infinite;box-shadow:0 0 8px var(--accent)}
+.hc-body{padding:6px 20px 10px;display:flex;flex-direction:column}
+.hc-row{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:16px;padding:11px 0;border-bottom:1px solid var(--line)}
+.hc-row:last-child{border-bottom:none}
+.hc-label{font-family:var(--mono);font-size:10px;color:var(--ink-muted);letter-spacing:.08em;text-transform:uppercase}
+.hc-val{font-family:var(--mono);font-size:14px;color:var(--ink);font-weight:500;text-align:right;font-variant-numeric:tabular-nums}
+.hc-val .u{color:var(--ink-muted);font-size:9.5px;margin-left:4px;font-weight:400}
+.hc-val .g{color:var(--accent)}
+
+/* Hero pills */
+.hero-pills{display:flex;gap:8px;flex-wrap:wrap}
+.hero-pill{font-family:var(--mono);font-size:10px;color:var(--ink-dim);letter-spacing:.08em;padding:6px 12px;border:1px solid var(--line-2);border-radius:99px;display:inline-flex;align-items:center;gap:7px;background:rgba(8,11,21,.5);backdrop-filter:blur(8px)}
+.pill-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+
+/* CTA buttons */
+.cta-p{font-family:var(--mono);font-size:12px;padding:15px 30px;background:var(--accent);color:var(--bg);border:1px solid var(--accent);border-radius:var(--r-sm);letter-spacing:.08em;font-weight:600;transition:all .22s;display:inline-flex;align-items:center;gap:10px;cursor:pointer}
+.cta-p:hover{background:var(--accent-dim);border-color:var(--accent-dim);transform:translateY(-2px);box-shadow:0 12px 32px -10px rgba(75,123,255,.5)}
+.cta-p .arrow{transition:transform .22s}
+.cta-p:hover .arrow{transform:translateX(4px)}
+.cta-s{font-family:var(--mono);font-size:12px;padding:15px 28px;background:transparent;color:var(--ink);border:1px solid var(--line-3);border-radius:var(--r-sm);letter-spacing:.08em;transition:all .22s;display:inline-flex;align-items:center}
+.cta-s:hover{border-color:var(--ink-dim);color:#fff;background:rgba(255,255,255,.02)}
+
+/* Scroll nudge at bottom of hero */
+.hero-scroll{max-width:var(--maxw);margin:0 auto;width:100%;padding:28px 0 32px;display:flex;align-items:center;gap:14px;animation:fade-up 1s .7s both}
+.hero-scroll-line{flex:1;height:1px;background:var(--line-2)}
+.hero-scroll-txt{font-family:var(--mono);font-size:9.5px;color:var(--ink-faint);letter-spacing:.2em;text-transform:uppercase;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.hero-scroll-arrow{animation:bounce-y 2s ease-in-out infinite}
+@keyframes bounce-y{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+
+/* Hero responsive */
+@media(max-width:1100px){.hero-grid{grid-template-columns:1fr 360px;gap:56px}}
+@media(max-width:860px){.hero-grid{grid-template-columns:1fr;gap:40px}.hero-right{max-width:480px}}
+
+/* Hero bottom strip — logos + scroll cue */
+.hero-bottom{
+  border-top:1px solid var(--line);
+  margin-top:auto;
+  padding:20px 0;
+  animation:fade-up 1s .8s both;
+}
+.hero-bottom-inner{
+  max-width:var(--maxw);margin:0 auto;
+  display:flex;align-items:center;gap:28px;flex-wrap:wrap;
+}
+.hero-bottom-label{
+  font-family:var(--mono);font-size:9.5px;color:var(--ink-faint);
+  letter-spacing:.2em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;
+}
+.hero-bottom-logos{
+  display:flex;gap:36px;align-items:center;flex-wrap:wrap;flex:1;
+}
+.hero-scroll-cue{
+  display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0;
+}
+.hero-scroll-arrow{
+  font-family:var(--mono);font-size:13px;color:var(--ink-faint);
+  animation:bounce-y 2.2s ease-in-out infinite;display:inline-block;
+}
+@keyframes bounce-y{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+
+/* ─────────────────────────────────────────────
+   LOGO / TRUST BAR
+   ───────────────────────────────────────────── */
+.trust-bar{position:relative;z-index:3;padding:44px var(--pad);border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(8,11,21,.4)}
+.trust-inner{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap}
+.trust-label{font-family:var(--mono);font-size:10px;color:var(--ink-muted);letter-spacing:.2em;text-transform:uppercase;white-space:nowrap}
+.trust-logos{display:flex;gap:48px;align-items:center;flex-wrap:wrap;flex:1;justify-content:flex-end}
+.trust-item{font-family:var(--mono);font-size:13px;color:var(--ink-dim);letter-spacing:.01em;font-weight:500;display:inline-flex;align-items:center;gap:8px;opacity:.7;transition:opacity .2s}
+.trust-item:hover{opacity:1}
+.trust-item .mark{width:8px;height:8px;border-radius:2px;display:inline-block}
+
+/* ─────────────────────────────────────────────
+   PROBLEM BAND
+   ───────────────────────────────────────────── */
+.prob-band{position:relative;z-index:3;padding:clamp(72px,10vw,120px) var(--pad)}
+.prob-wrap{max-width:var(--maxw);margin:0 auto}
+.prob-head{display:grid;grid-template-columns:1fr 1.4fr;gap:60px;align-items:end;margin-bottom:56px}
+.prob-head-l .eyebrow{margin-bottom:20px}
+.prob-head-l h2{font-family:'Barlow Condensed',sans-serif;font-size:clamp(36px,5vw,60px);font-weight:700;letter-spacing:-.005em;line-height:.98;text-transform:uppercase}
+.prob-head-l h2 em{font-style:italic;color:var(--accent);font-weight:400}
+.prob-head-r{font-size:15px;color:var(--ink-dim);line-height:1.65;font-weight:300;max-width:520px;justify-self:end}
+.prob-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line-2);border:1px solid var(--line-2);border-radius:var(--r-md);overflow:hidden}
+.pc{background:linear-gradient(180deg,rgba(12,16,32,.6),rgba(8,11,21,.4));padding:40px 36px;position:relative;transition:background .3s}
+.pc:hover{background:linear-gradient(180deg,rgba(14,20,40,.8),rgba(10,14,28,.5))}
+.pc-stat{font-family:var(--serif);font-size:clamp(44px,5.5vw,72px);font-weight:400;letter-spacing:-.04em;line-height:1;margin-bottom:16px;font-variant-numeric:tabular-nums}
+.pc-stat.r{color:var(--red)}.pc-stat.a{color:var(--amber)}.pc-stat.g{color:var(--accent)}
+.pc-stat .sign{font-size:.5em;vertical-align:super;margin-right:2px;opacity:.75}
+.pc-h{font-family:var(--sans);font-size:14px;color:var(--ink);font-weight:500;margin-bottom:10px;letter-spacing:-.005em}
+.pc-label{font-family:var(--sans);font-size:13px;color:var(--ink-dim);line-height:1.55;font-weight:300}
+.pc-src{font-family:var(--mono);font-size:9.5px;color:var(--ink-faint);letter-spacing:.1em;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+
+/* ─────────────────────────────────────────────
+   SECTION HEAD (reusable)
+   ───────────────────────────────────────────── */
+.sec{position:relative;z-index:3;padding:clamp(72px,10vw,130px) var(--pad);max-width:var(--maxw);margin:0 auto}
+.sec-full{position:relative;z-index:3;padding:clamp(72px,10vw,130px) 0;border-top:1px solid var(--line)}
+.sec-full .inn{max-width:var(--maxw);margin:0 auto;padding:0 var(--pad)}
+.sec-head{margin-bottom:52px}
+.sec-head .eyebrow{margin-bottom:18px}
+.sec-head h2{font-family:'Barlow Condensed',sans-serif;font-size:clamp(40px,5.5vw,72px);font-weight:700;letter-spacing:-.005em;line-height:.98;text-transform:uppercase;margin-bottom:20px;max-width:880px}
+.sec-head h2 em{font-style:italic;font-weight:600}
+.sec-head h2 .hl{color:var(--accent);font-weight:700;font-style:normal}
+.sec-sub{font-size:16px;color:var(--ink-dim);line-height:1.65;max-width:600px;font-weight:300}
+
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal-stagger > *{opacity:0;transform:translateY(20px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.reveal-stagger.in > *{opacity:1;transform:none}
+.reveal-stagger.in > *:nth-child(1){transition-delay:0ms}
+.reveal-stagger.in > *:nth-child(2){transition-delay:90ms}
+.reveal-stagger.in > *:nth-child(3){transition-delay:180ms}
+.reveal-stagger.in > *:nth-child(4){transition-delay:270ms}
+
+/* ─────────────────────────────────────────────
+   PRODUCTS
+   ───────────────────────────────────────────── */
+.prod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line-2);border:1px solid var(--line-2);border-radius:var(--r-md);overflow:hidden}
+.prod-card{background:linear-gradient(180deg,rgba(12,16,32,.75),rgba(8,11,21,.55));padding:36px 32px 32px;position:relative;display:flex;flex-direction:column;transition:all .35s;min-height:480px}
+.prod-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gradient,linear-gradient(90deg,var(--accent),var(--blue)));opacity:.7;transition:opacity .3s}
+.prod-card:hover{background:linear-gradient(180deg,rgba(16,22,44,.9),rgba(10,14,28,.7))}
+.prod-card:hover::before{opacity:1}
+.prod-card[data-p="fin"]{--gradient:linear-gradient(90deg,var(--accent),var(--blue))}
+.prod-card[data-p="tra"]{--gradient:linear-gradient(90deg,var(--amber),#F6D860)}
+.prod-card[data-p="dat"]{--gradient:linear-gradient(90deg,var(--sol),#C084FC)}
+.pbadge{font-family:var(--mono);font-size:9.5px;padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:6px;margin-bottom:22px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;width:fit-content}
+.pbadge-g{background:rgba(75,123,255,.07);color:var(--accent);border:1px solid rgba(75,123,255,.22)}
+.pbadge-a{background:rgba(240,176,80,.07);color:var(--amber);border:1px solid rgba(240,176,80,.22)}
+.pbadge-p{background:rgba(153,69,255,.08);color:#C084FC;border:1px solid rgba(153,69,255,.22)}
+.prod-card h3{font-family:var(--serif);font-size:26px;font-weight:500;letter-spacing:-.02em;margin-bottom:4px;color:var(--ink)}
+.prod-subtitle{font-family:var(--mono);font-size:10.5px;color:var(--ink-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:22px}
+.prod-limit-row{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.prod-limit{font-family:var(--serif);font-size:40px;font-weight:400;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.prod-limit-c{color:var(--accent)}.prod-limit-a{color:var(--amber)}.prod-limit-p{color:#C084FC}
+.prod-per{font-family:var(--mono);font-size:10.5px;color:var(--ink-muted);margin-bottom:22px;letter-spacing:.04em}
+.prod-desc{font-size:13.5px;color:var(--ink-dim);line-height:1.65;margin-bottom:24px;font-weight:300}
+.prod-feats{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:24px;flex:1}
+.prod-feats li{font-family:var(--sans);font-size:12.5px;color:var(--ink-dim);display:flex;gap:10px;line-height:1.45;font-weight:400}
+.prod-feats li .ic{flex-shrink:0;margin-top:3px;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;border-radius:3px;font-size:9px;font-weight:700}
+.feat-g li .ic{background:rgba(75,123,255,.1);color:var(--accent)}
+.feat-a li .ic{background:rgba(240,176,80,.1);color:var(--amber)}
+.feat-p li .ic{background:rgba(153,69,255,.12);color:#C084FC}
+.prod-foot{padding-top:20px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.prod-price{font-family:var(--mono);font-size:12.5px;font-weight:600;letter-spacing:.02em}
+.prod-price .sm{color:var(--ink-muted);font-size:10.5px;font-weight:400;display:block;margin-top:2px;letter-spacing:.06em}
+.prod-cta{font-family:var(--mono);font-size:10.5px;color:var(--ink-dim);letter-spacing:.1em;text-transform:uppercase;transition:color .2s;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.prod-cta:hover{color:var(--accent)}
+.prod-cta .a{transition:transform .2s}
+.prod-cta:hover .a{transform:translateX(3px)}
+
+/* ─────────────────────────────────────────────
+   ARCHITECTURE DIAGRAM / HOW IT WORKS
+   ───────────────────────────────────────────── */
+.arch-wrap{position:relative;margin-top:8px}
+.arch-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;border:1px solid var(--line-2);border-radius:var(--r-md);overflow:hidden;background:linear-gradient(180deg,rgba(12,16,32,.4),rgba(8,11,21,.2))}
+.arch-step{padding:36px 28px;position:relative;border-right:1px solid var(--line-2);display:flex;flex-direction:column}
+.arch-step:last-child{border-right:none}
+.arch-step::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity .4s}
+.arch-step:hover::before{opacity:.4}
+.arch-head{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.arch-n{font-family:var(--mono);font-size:10.5px;color:var(--accent);letter-spacing:.18em;font-weight:600;padding:4px 8px;border:1px solid rgba(75,123,255,.25);border-radius:var(--r-sm);background:rgba(75,123,255,.04)}
+.arch-dur{font-family:var(--mono);font-size:9.5px;color:var(--ink-faint);letter-spacing:.1em;text-transform:uppercase;margin-left:auto}
+.arch-title{font-family:var(--serif);font-size:20px;font-weight:500;letter-spacing:-.015em;margin-bottom:12px;line-height:1.15}
+.arch-desc{font-size:12.5px;color:var(--ink-dim);line-height:1.6;font-weight:300;margin-bottom:20px}
+.arch-meta{margin-top:auto;padding-top:16px;border-top:1px dashed var(--line-2);display:flex;flex-direction:column;gap:6px}
+.arch-meta-r{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px}
+.arch-meta-r .k{color:var(--ink-muted);letter-spacing:.08em;text-transform:uppercase}
+.arch-meta-r .v{color:var(--ink);font-weight:500}
+
+/* ─────────────────────────────────────────────
+   ORACLE / INFRASTRUCTURE
+   ───────────────────────────────────────────── */
+.infra-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:start;margin-top:8px}
+.infra-left{display:flex;flex-direction:column;gap:28px}
+.infra-feat{padding:28px 30px;border:1px solid var(--line-2);border-radius:var(--r-md);background:linear-gradient(180deg,rgba(12,16,32,.5),rgba(8,11,21,.3));transition:border-color .3s,background .3s;position:relative;overflow:hidden}
+.infra-feat::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--accent);transform:scaleY(0);transform-origin:top;transition:transform .35s ease}
+.infra-feat:hover{border-color:var(--line-3);background:linear-gradient(180deg,rgba(14,20,40,.7),rgba(10,14,28,.4))}
+.infra-feat:hover::before{transform:scaleY(1)}
+.infra-feat-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.infra-icon{width:36px;height:36px;border-radius:var(--r-sm);background:rgba(75,123,255,.08);border:1px solid rgba(75,123,255,.2);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0}
+.infra-icon svg{width:18px;height:18px}
+.infra-feat h4{font-family:var(--serif);font-size:19px;font-weight:500;letter-spacing:-.015em}
+.infra-feat p{font-size:13.5px;color:var(--ink-dim);line-height:1.6;font-weight:300}
+
+.infra-right{position:sticky;top:100px;border:1px solid var(--line-2);border-radius:var(--r-md);background:linear-gradient(160deg,rgba(14,20,40,.7),rgba(8,11,21,.5));overflow:hidden}
+.infra-code-head{padding:12px 18px;border-bottom:1px solid var(--line-2);display:flex;align-items:center;justify-content:space-between;background:rgba(8,11,21,.5)}
+.infra-code-dots{display:flex;gap:6px}
+.infra-code-dots span{width:10px;height:10px;border-radius:50%;background:var(--line-3)}
+.infra-code-dots span:nth-child(1){background:#e97070}
+.infra-code-dots span:nth-child(2){background:#f0b050}
+.infra-code-dots span:nth-child(3){background:var(--accent)}
+.infra-code-title{font-family:var(--mono);font-size:10.5px;color:var(--ink-muted);letter-spacing:.1em;text-transform:uppercase}
+.infra-code{padding:22px 24px;font-family:var(--mono);font-size:12.5px;line-height:1.85;color:var(--ink-dim);overflow-x:auto;font-weight:400}
+.infra-code .c{color:var(--ink-faint)}
+.infra-code .k{color:#C084FC}
+.infra-code .s{color:var(--accent)}
+.infra-code .v{color:var(--amber)}
+.infra-code .n{color:var(--blue)}
+.infra-code .f{color:#EDB4FF}
+
+/* ─────────────────────────────────────────────
+   METRICS DASHBOARD / RESERVE
+   ───────────────────────────────────────────── */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line-2);border:1px solid var(--line-2);border-radius:var(--r-md);overflow:hidden;margin-top:8px}
+.metric{background:linear-gradient(180deg,rgba(12,16,32,.6),rgba(8,11,21,.4));padding:28px 26px;transition:background .3s}
+.metric:hover{background:linear-gradient(180deg,rgba(16,22,44,.85),rgba(10,14,28,.6))}
+.metric-label{font-family:var(--mono);font-size:10px;color:var(--ink-muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px;font-weight:500}
+.metric-val{font-family:var(--serif);font-size:clamp(30px,3.2vw,44px);font-weight:400;letter-spacing:-.035em;line-height:1;font-variant-numeric:tabular-nums;margin-bottom:8px}
+.metric-val.g{color:var(--accent)}
+.metric-delta{font-family:var(--mono);font-size:11px;color:var(--ink-dim);display:flex;align-items:center;gap:6px;font-weight:400}
+.metric-delta .up{color:var(--accent)}
+.metric-delta .down{color:var(--red)}
+.metric-spark{margin-top:14px;height:28px}
+.metric-spark svg{width:100%;height:100%}
+
+/* ─────────────────────────────────────────────
+   PRICING
+   ───────────────────────────────────────────── */
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:8px}
+.price-c{background:linear-gradient(180deg,rgba(12,16,32,.65),rgba(8,11,21,.45));border:1px solid var(--line-2);border-radius:var(--r-md);padding:36px 32px;position:relative;display:flex;flex-direction:column;transition:all .3s}
+.price-c:hover{border-color:var(--line-3);transform:translateY(-3px)}
+.price-c.feat{background:linear-gradient(180deg,rgba(16,24,48,.85),rgba(10,14,28,.6));border-color:rgba(75,123,255,.3);box-shadow:0 0 40px -20px rgba(75,123,255,.25)}
+.price-c.feat:hover{border-color:rgba(75,123,255,.5);box-shadow:0 20px 60px -20px rgba(75,123,255,.35)}
+.p-tier{font-family:var(--mono);font-size:10.5px;color:var(--ink-muted);letter-spacing:.16em;text-transform:uppercase;margin-bottom:4px;font-weight:500}
+.p-tier-desc{font-size:12.5px;color:var(--ink-muted);margin-bottom:24px;font-weight:300;line-height:1.5}
+.p-amt-wrap{display:flex;align-items:baseline;gap:6px;margin-bottom:4px}
+.p-amt{font-family:var(--serif);font-size:clamp(40px,4.5vw,56px);font-weight:400;letter-spacing:-.035em;line-height:1;font-variant-numeric:tabular-nums}
+.p-amt.g{background:linear-gradient(120deg,var(--accent),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.p-amt.a{background:linear-gradient(120deg,var(--amber),#F6D860);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.p-amt.f{background:linear-gradient(120deg,var(--sol),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.p-unit{font-family:var(--mono);font-size:14px;color:var(--ink-muted);font-weight:400}
+.p-period{font-family:var(--mono);font-size:11px;color:var(--ink-muted);margin-bottom:28px;letter-spacing:.04em}
+.p-list{list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:28px;flex:1}
+.p-list li{font-size:13px;color:var(--ink-dim);display:flex;gap:10px;align-items:flex-start;line-height:1.5;font-weight:400}
+.chk{color:var(--accent);flex-shrink:0;margin-top:3px;width:14px;height:14px}
+.pbtn{display:block;width:100%;padding:13px;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-align:center;border-radius:var(--r-sm);transition:all .22s;font-weight:500}
+.pb-out{border:1px solid var(--line-3);color:var(--ink-dim);background:transparent}
+.pb-out:hover{border-color:var(--accent);color:var(--accent);background:rgba(75,123,255,.04)}
+.pb-fill{background:var(--accent);color:var(--bg);border:1px solid var(--accent);font-weight:600}
+.pb-fill:hover{background:var(--accent-dim);transform:translateY(-1px);box-shadow:0 12px 32px -10px rgba(75,123,255,.5)}
+.pop-flag{position:absolute;top:18px;right:18px;font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--accent);padding:4px 10px;border-radius:99px;background:rgba(75,123,255,.1);border:1px solid rgba(75,123,255,.3);text-transform:uppercase;font-weight:600}
+
+/* ─────────────────────────────────────────────
+   FAQ
+   ───────────────────────────────────────────── */
+.faq-grid{display:grid;grid-template-columns:1fr 1.6fr;gap:60px;align-items:start;margin-top:8px}
+.faq-side{position:sticky;top:100px}
+.faq-side .eyebrow{margin-bottom:20px}
+.faq-side h2{font-family:'Barlow Condensed',sans-serif;font-size:clamp(36px,4.5vw,58px);font-weight:700;letter-spacing:-.005em;line-height:.98;margin-bottom:20px;text-transform:uppercase}
+.faq-side h2 em{font-style:italic;font-weight:600}
+.faq-side p{font-size:15px;color:var(--ink-dim);line-height:1.6;font-weight:300;max-width:360px;margin-bottom:28px}
+.faq-contact{font-family:var(--mono);font-size:11.5px;color:var(--accent);letter-spacing:.08em;display:inline-flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--accent)}
+
+.faq-list{display:flex;flex-direction:column;border-top:1px solid var(--line-2)}
+.faq-item{border-bottom:1px solid var(--line-2);transition:background .2s}
+.faq-item:hover{background:rgba(12,16,32,.3)}
+.faq-q{padding:26px 0;font-family:var(--serif);font-size:19px;font-weight:500;letter-spacing:-.015em;display:flex;justify-content:space-between;align-items:center;transition:color .2s;user-select:none;gap:20px;line-height:1.3}
+.faq-q:hover{color:var(--accent)}
+.faq-ic{font-family:var(--mono);font-size:14px;color:var(--ink-muted);transition:transform .3s,color .3s;flex-shrink:0;width:24px;height:24px;border:1px solid var(--line-2);border-radius:50%;display:inline-flex;align-items:center;justify-content:center}
+.faq-item.open .faq-ic{transform:rotate(45deg);color:var(--accent);border-color:var(--accent)}
+.faq-a{font-size:14px;color:var(--ink-dim);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(.16,1,.3,1),padding .3s;font-weight:300}
+.faq-item.open .faq-a{max-height:400px;padding:0 0 28px}
+
+/* ─────────────────────────────────────────────
+   CTA BAND
+   ───────────────────────────────────────────── */
+.cta-band{position:relative;z-index:3;padding:clamp(80px,10vw,130px) var(--pad);text-align:center;border-top:1px solid var(--line);overflow:hidden}
+.cta-band::before{content:'';position:absolute;inset:0;background:
+  radial-gradient(ellipse 80% 50% at 50% 100%,rgba(75,123,255,.09) 0%,transparent 60%),
+  radial-gradient(ellipse 60% 40% at 30% 80%,rgba(153,69,255,.06) 0%,transparent 50%);
+  pointer-events:none}
+.cta-inner{max-width:820px;margin:0 auto;position:relative}
+.cta-band h2{font-family:var(--serif);font-size:clamp(40px,6vw,80px);font-weight:400;letter-spacing:-.032em;line-height:.98;margin-bottom:24px}
+.cta-band h2 em{font-style:italic;font-weight:300;color:var(--accent)}
+.cta-band p{font-size:16px;color:var(--ink-dim);max-width:500px;margin:0 auto 40px;line-height:1.6;font-weight:300}
+.cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.cta-legal{margin-top:36px;font-family:var(--mono);font-size:10px;color:var(--ink-faint);letter-spacing:.1em;text-transform:uppercase}
+
+/* ─────────────────────────────────────────────
+   FOOTER
+   ───────────────────────────────────────────── */
+footer{position:relative;z-index:3;border-top:1px solid var(--line);padding:64px var(--pad) 32px;background:var(--bg)}
+.ft-grid{max-width:var(--maxw);margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px}
+.ft-brand{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.ft-brand img{width:26px;height:26px;object-fit:contain;border-radius:5px;mix-blend-mode:screen}
+.ft-tag{font-size:13px;color:var(--ink-dim);line-height:1.6;margin-bottom:22px;max-width:340px;font-weight:300}
+.ft-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.ft-badge{font-family:var(--mono);font-size:9.5px;padding:4px 10px;border-radius:99px;border:1px solid var(--line-2);color:var(--ink-muted);letter-spacing:.08em;text-transform:uppercase}
+.ft-disc{font-family:var(--mono);font-size:9.5px;color:var(--ink-faint);line-height:1.65;letter-spacing:.02em;max-width:380px}
+.ft-col h5{font-family:var(--mono);font-size:10px;color:var(--ink);letter-spacing:.18em;text-transform:uppercase;margin-bottom:20px;font-weight:600}
+.ft-links{list-style:none;display:flex;flex-direction:column;gap:12px}
+.ft-links a{font-family:var(--mono);font-size:12px;color:var(--ink-muted);transition:color .2s;font-weight:400}
+.ft-links a:hover{color:var(--accent)}
+.ft-bot{max-width:var(--maxw);margin:0 auto;padding-top:28px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.ft-copy{font-family:var(--mono);font-size:10.5px;color:var(--ink-muted);letter-spacing:.04em}
+.ft-socials{display:flex;gap:16px}
+.ft-socials a{width:30px;height:30px;border:1px solid var(--line-2);border-radius:var(--r-sm);display:inline-flex;align-items:center;justify-content:center;color:var(--ink-muted);transition:all .2s;cursor:pointer}
+.ft-socials a:hover{border-color:var(--accent);color:var(--accent)}
+.ft-socials svg{width:14px;height:14px}
+
+/* ─────────────────────────────────────────────
+   WALLET CONNECT MODAL
+   ───────────────────────────────────────────── */
+.ph-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(14px);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .28s}
+.ph-backdrop.open{opacity:1;pointer-events:all}
+.ph-box{background:linear-gradient(180deg,rgba(14,20,40,.98),rgba(10,14,28,.95));border:1px solid var(--line-3);border-radius:var(--r-lg);padding:32px 28px;width:100%;max-width:390px;text-align:center;transform:translateY(20px) scale(.96);transition:transform .32s cubic-bezier(.16,1,.3,1);position:relative;box-shadow:0 40px 100px -20px rgba(0,0,0,.8)}
+.ph-backdrop.open .ph-box{transform:none}
+.ph-logo{width:54px;height:54px;object-fit:contain;border-radius:12px;mix-blend-mode:screen;margin:0 auto 20px;display:block;filter:drop-shadow(0 0 24px rgba(75,123,255,.35))}
+.ph-title{font-family:var(--serif);font-size:22px;font-weight:500;letter-spacing:-.02em;margin-bottom:10px}
+.ph-sub{font-size:13px;color:var(--ink-dim);line-height:1.55;margin-bottom:24px;font-weight:300}
+.ph-btn{display:flex;align-items:center;gap:12px;width:100%;padding:15px 18px;background:linear-gradient(135deg,#4B7BFF,#3362E0);border:none;border-radius:var(--r-md);cursor:pointer;transition:all .22s;margin-bottom:8px}
+.ph-btn:hover{transform:translateY(-1px);box-shadow:0 10px 32px rgba(75,123,255,.4)}
+.ph-btn.loading{opacity:.6;pointer-events:none}
+.ph-btn-icon{font-size:22px;flex-shrink:0}
+.ph-btn-txt{text-align:left;flex:1}
+.ph-btn-label{font-size:13.5px;font-weight:600;color:#fff}
+.ph-btn-sub{font-family:var(--mono);font-size:9.5px;color:rgba(255,255,255,.6);margin-top:2px;letter-spacing:.04em}
+.ph-btn-arrow{color:rgba(255,255,255,.5);font-size:14px;transition:transform .2s}
+.ph-btn:hover .ph-btn-arrow{transform:translateX(3px)}
+.ph-err{font-family:var(--mono);font-size:10.5px;color:var(--red);min-height:14px;margin:6px 0;opacity:0;transition:opacity .2s}
+.ph-err.show{opacity:1}
+.ph-no-wallet{font-family:var(--mono);font-size:11px;color:var(--ink-muted);margin-top:6px;display:none}
+.ph-no-wallet a{color:var(--accent)}
+.ph-close{position:absolute;top:14px;right:16px;font-size:18px;color:var(--ink-muted);cursor:pointer;line-height:1;transition:color .2s}
+.ph-close:hover{color:var(--ink)}
+.ph-divider{display:flex;align-items:center;gap:10px;margin:16px 0 12px}
+.ph-div-line{flex:1;height:1px;background:var(--line-2)}
+.ph-div-txt{font-family:var(--mono);font-size:9px;color:var(--ink-muted);letter-spacing:.14em;text-transform:uppercase}
+.ph-badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.ph-badge{font-family:var(--mono);font-size:9px;padding:4px 9px;border-radius:99px;border:1px solid var(--line-2);color:var(--ink-muted);letter-spacing:.06em}
+.ph-legal{font-family:var(--mono);font-size:9px;color:var(--ink-faint);margin-top:16px;line-height:1.55;letter-spacing:.02em}
+
+/* ─────────────────────────────────────────────
+   SCROLLBAR
+   ───────────────────────────────────────────── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--line-3);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--ink-muted)}
+
+/* ─────────────────────────────────────────────
+   RESPONSIVE
+   ───────────────────────────────────────────── */
+@media(max-width:1100px){
+  .hero-left{align-items:flex-start}
+  .hero-grid{grid-template-columns:1fr 380px;gap:56px}
+  .prob-head{grid-template-columns:1fr;gap:24px}
+  .prob-head-r{justify-self:start;max-width:none}
+  .infra-grid{grid-template-columns:1fr;gap:32px}
+  .infra-right{position:static}
+  .faq-grid{grid-template-columns:1fr;gap:32px}
+  .faq-side{position:static}
+  .ft-grid{grid-template-columns:1.4fr 1fr 1fr 1fr}
+  .ft-brand-col{grid-column:1/-1}
+}
+@media(max-width:900px){
+  .prod-grid,.prob-grid,.arch-flow,.metrics-grid{grid-template-columns:repeat(2,1fr)}
+  .price-grid{grid-template-columns:1fr;gap:16px}
+  .arch-step{border-right:none;border-bottom:1px solid var(--line-2)}
+  .arch-step:nth-child(2n){border-right:none}
+  .arch-step:nth-child(1),.arch-step:nth-child(2){border-right:1px solid var(--line-2)}
+  .nav-links{display:none}
+  .nav-r .btn-ghost,.nav-r .btn-solid{display:none}
+  .hamburger{display:flex}
+  .trust-inner{justify-content:center;text-align:center}
+  .trust-logos{justify-content:center;gap:32px}
+}
+@media(max-width:640px){
+  body{cursor:auto}
+  a,button{cursor:pointer}
+  nav{padding:12px 18px}
+  .state-bar{margin-top:54px}
+  .prod-grid,.prob-grid,.arch-flow,.metrics-grid{grid-template-columns:1fr}
+  .arch-step{border-right:none !important;border-bottom:1px solid var(--line-2) !important}
+  .arch-step:last-child{border-bottom:none !important}
+  .ft-grid{grid-template-columns:1fr 1fr;gap:28px}
+  .ft-brand-col{grid-column:1/-1}
+  .ft-bot{flex-direction:column;text-align:center}
+  .hero{padding:48px 20px 60px}
+  .hero-grid{grid-template-columns:1fr;gap:32px}
+  .hero-right{display:none}
+  .hero-badge{margin-bottom:28px}
+  h1{margin-bottom:24px}
+  .hero-lead{margin-bottom:32px}
+  .sec{padding:64px 20px}
+  .sec-full{padding:64px 0}
+  .sec-full .inn{padding:0 20px}
+  .trust-bar{padding:32px 20px}
+  .trust-logos{gap:22px}
+  footer{padding:48px 20px 24px}
+}
+
+/* ═══════════════════════════════════════════════
+   WOW LAYER — DRAMATIC EFFECTS
+   ═══════════════════════════════════════════════ */
+
+/* Custom cursor */
+#cursor-dot{position:fixed;width:8px;height:8px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .1s,width .25s,height .25s,background .25s;mix-blend-mode:screen;will-change:transform}
+#cursor-ring{position:fixed;width:38px;height:38px;border:1.5px solid rgba(75,123,255,.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:transform .08s,width .3s,height .3s,border-color .3s,opacity .3s;will-change:transform}
+body:has(a:hover) #cursor-ring,body:has(button:hover) #cursor-ring{width:56px;height:56px;border-color:rgba(75,123,255,.8)}
+body:has(a:hover) #cursor-dot,body:has(button:hover) #cursor-dot{width:6px;height:6px;background:#fff}
+
+/* Aurora orbs */
+.aurora-orb{position:fixed;border-radius:50%;pointer-events:none;will-change:transform;filter:blur(80px);z-index:0}
+.orb-1{width:800px;height:800px;background:radial-gradient(circle,rgba(43,95,217,.18) 0%,rgba(43,95,217,.05) 40%,transparent 70%);top:-200px;left:-100px;animation:orb-drift-1 22s ease-in-out infinite}
+.orb-2{width:700px;height:700px;background:radial-gradient(circle,rgba(75,123,255,.2) 0%,rgba(75,123,255,.05) 40%,transparent 70%);bottom:-150px;right:-80px;animation:orb-drift-2 28s ease-in-out infinite}
+.orb-3{width:600px;height:600px;background:radial-gradient(circle,rgba(126,176,255,.12) 0%,rgba(126,176,255,.03) 40%,transparent 70%);top:40%;left:30%;animation:orb-drift-3 18s ease-in-out infinite}
+.orb-4{width:400px;height:400px;background:radial-gradient(circle,rgba(75,123,255,.1) 0%,transparent 70%);top:60%;right:20%;animation:orb-drift-2 24s ease-in-out infinite reverse}
+@keyframes orb-drift-1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(80px,-60px) scale(1.1)}66%{transform:translate(-40px,80px) scale(.9)}}
+@keyframes orb-drift-2{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-60px,40px) scale(1.08)}66%{transform:translate(50px,-70px) scale(.95)}}
+@keyframes orb-drift-3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-80px,-40px) scale(1.12)}}
+
+/* Hero scramble text — target the h1 */
+h1 .scramble-char{display:inline;transition:none}
+
+/* Glitch effect on eyebrow */
+.eyebrow.glitch{animation:glitch-it .5s step-end forwards}
+@keyframes glitch-it{0%{clip-path:inset(0 0 100% 0)}20%{clip-path:inset(20% 0 60% 0);transform:translateX(-2px)}40%{clip-path:inset(50% 0 30% 0);transform:translateX(2px)}60%{clip-path:inset(70% 0 10% 0);transform:none}80%{clip-path:inset(90% 0 0 0)}100%{clip-path:none;transform:none}}
+
+/* Cinematic reveals — clean fade+rise, no clipping that breaks layout */
+.reveal{opacity:0;transform:translateY(32px);transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1) !important}
+.reveal.in{opacity:1 !important;transform:translateY(0) !important}
+.reveal-stagger > *{opacity:0;transform:translateY(24px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1) !important}
+.reveal-stagger.in > *{opacity:1 !important;transform:translateY(0) !important}
+.reveal-stagger.in > *:nth-child(1){transition-delay:0ms}
+.reveal-stagger.in > *:nth-child(2){transition-delay:120ms}
+.reveal-stagger.in > *:nth-child(3){transition-delay:240ms}
+.reveal-stagger.in > *:nth-child(4){transition-delay:360ms}
+
+/* Holographic card shimmer */
+.prod-card,.price-c,.infra-feat,.metric,.arch-step{position:relative}
+.arch-step{overflow:hidden}
+.prod-card::after,.price-c::after,.metric::after{content:'';position:absolute;inset:-1px;border-radius:inherit;background:conic-gradient(from var(--shimmer-angle,0deg),transparent 20%,rgba(75,123,255,.08) 40%,rgba(153,69,255,.06) 50%,rgba(108,169,240,.08) 60%,transparent 80%);opacity:0;transition:opacity .4s;pointer-events:none;z-index:0}
+.prod-card:hover::after,.price-c:hover::after,.metric:hover::after{opacity:1;animation:shimmer-spin 3s linear infinite}
+@property --shimmer-angle{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes shimmer-spin{to{--shimmer-angle:360deg}}
+
+/* Card 3D tilt wrapper */
+.tilt-card{transform-style:preserve-3d;transition:transform .1s ease}
+
+/* Data flow animation for arch steps */
+.arch-connector{position:absolute;top:50%;right:-1px;transform:translateY(-50%);width:20px;height:20px;z-index:10;overflow:visible}
+.arch-flow-wrap{position:relative}
+.flow-line{stroke-dasharray:6 4;stroke-dashoffset:0;animation:flow-dash 1.5s linear infinite}
+@keyframes flow-dash{to{stroke-dashoffset:-20}}
+
+/* Metric counter */
+.metric-val[data-target]{will-change:contents}
+
+/* Particle canvas */
+#particle-canvas{position:fixed;inset:0;pointer-events:none;z-index:9997}
+
+/* Hero CTA pulse ring on hover */
+.cta-p{position:relative}
+.cta-p::before{content:'';position:absolute;inset:0;border-radius:var(--r-sm);border:1px solid var(--accent);opacity:0;animation:none;pointer-events:none}
+.cta-p:hover::before{animation:ring-expand .6s ease forwards}
+@keyframes ring-expand{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(1.15)}}
+
+/* Scanline overlay */
+.scanlines{position:fixed;inset:0;z-index:2;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.012) 2px,rgba(0,0,0,.012) 4px)}
+
+/* Floating badge pulse */
+.hero-badge{box-shadow:0 0 0 0 rgba(75,123,255,.3);animation:badge-pulse 3s ease-in-out infinite, fade-up .9s .1s both !important}
+@keyframes badge-pulse{0%,100%{box-shadow:0 0 0 0 rgba(75,123,255,.3)}50%{box-shadow:0 0 0 8px rgba(75,123,255,0)}}
+
+/* Live number shimmer for state bar */
+.state-i .v.g{text-shadow:0 0 12px rgba(75,123,255,.6)}
+
+/* Section divider — animated gradient line */
+.sec-divider{height:1px;background:linear-gradient(90deg,transparent,var(--accent),var(--accent-bright),var(--glow),transparent);background-size:200% 100%;animation:line-sweep 4s linear infinite;opacity:.3}
+@keyframes line-sweep{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* Glow on primary CTAs */
+.cta-p,.pb-fill{box-shadow:0 0 30px -10px rgba(75,123,255,.35),inset 0 1px 0 rgba(255,255,255,.1)}
+.cta-p:hover,.pb-fill:hover{box-shadow:0 0 50px -8px rgba(75,123,255,.6),inset 0 1px 0 rgba(255,255,255,.15),0 20px 40px -15px rgba(75,123,255,.4)}
+
+/* Code block typewriter effect */
+.infra-code .line{display:block;opacity:0;animation:type-in .3s ease forwards}
+
+/* Morphing border on featured price card */
+.price-c.feat{box-shadow:0 0 0 1px rgba(75,123,255,.3),0 0 40px -10px rgba(75,123,255,.25),0 0 80px -20px rgba(75,123,255,.1)}
+.price-c.feat:hover{box-shadow:0 0 0 1px rgba(75,123,255,.6),0 0 60px -8px rgba(75,123,255,.4),0 0 120px -30px rgba(75,123,255,.2)}
+
+/* Noise + grid */
+.noise{opacity:.025 !important}
+.grid-bg{background-size:60px 60px !important;opacity:.8}
+
+/* ─────────────────────────────────────────────
+   WHITEPAPER MODAL — full-screen reading view
+   ───────────────────────────────────────────── */
+.wp-backdrop{position:fixed;inset:0;background:rgba(3,5,11,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);z-index:2500;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;opacity:0;pointer-events:none;transition:opacity .35s cubic-bezier(.16,1,.3,1);overflow-y:auto}
+.wp-backdrop.open{opacity:1;pointer-events:all}
+.wp-frame{width:100%;max-width:920px;background:linear-gradient(180deg,rgba(14,20,40,.98),rgba(8,11,21,.98));border:1px solid var(--line-3);border-radius:var(--r-lg);box-shadow:0 60px 140px -20px rgba(0,0,0,.85),0 0 0 1px rgba(75,123,255,.08);transform:translateY(40px) scale(.97);transition:transform .45s cubic-bezier(.16,1,.3,1);overflow:hidden;position:relative}
+.wp-backdrop.open .wp-frame{transform:none}
+.wp-head{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;padding:18px 28px;border-bottom:1px solid var(--line-2);background:linear-gradient(180deg,rgba(14,20,40,.98),rgba(12,16,32,.95));backdrop-filter:blur(20px);z-index:10}
+.wp-head-l{display:flex;align-items:center;gap:14px;min-width:0}
+.wp-head-mark{width:30px;height:34px;flex-shrink:0;filter:drop-shadow(0 0 10px rgba(75,123,255,.45))}
+.wp-head-txt{display:flex;flex-direction:column;line-height:1.15;min-width:0}
+.wp-head-eyebrow{font-family:var(--mono);font-size:9px;color:var(--accent);letter-spacing:.22em;text-transform:uppercase;font-weight:500;margin-bottom:3px}
+.wp-head-title{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:var(--ink);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wp-head-r{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.wp-version{font-family:var(--mono);font-size:9.5px;color:var(--ink-muted);letter-spacing:.12em;text-transform:uppercase;padding:5px 10px;border:1px solid var(--line-2);border-radius:var(--r-sm)}
+.wp-close{width:32px;height:32px;border:1px solid var(--line-2);border-radius:50%;background:transparent;color:var(--ink-dim);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:14px;line-height:1}
+.wp-close:hover{border-color:var(--accent);color:var(--accent);background:rgba(75,123,255,.06);transform:rotate(90deg)}
+.wp-progress{position:absolute;left:0;right:0;bottom:0;height:1.5px;background:rgba(75,123,255,.08)}
+.wp-progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--glow));transition:width .12s linear;box-shadow:0 0 8px var(--accent)}
+
+.wp-body{padding:48px 64px 80px;color:var(--ink-dim);font-size:14.5px;line-height:1.78;font-weight:300;font-family:var(--sans)}
+.wp-body .wp-cover{text-align:center;padding:24px 0 40px;border-bottom:1px solid var(--line-2);margin-bottom:48px}
+.wp-cover-eyebrow{font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.3em;text-transform:uppercase;margin-bottom:18px;font-weight:500}
+.wp-cover h1{font-family:'Barlow Condensed',sans-serif;font-size:clamp(40px,5.5vw,68px);font-weight:700;line-height:1;letter-spacing:-.01em;text-transform:uppercase;margin-bottom:14px;color:var(--ink);background:linear-gradient(160deg,#FFFFFF 0%,#DCE8FF 50%,#7EB0FF 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 2px 16px rgba(75,123,255,.3));max-width:none;animation:none}
+.wp-cover-sub{font-family:var(--serif);font-size:clamp(18px,2vw,22px);font-weight:400;font-style:italic;color:var(--ink-dim);margin-bottom:24px;letter-spacing:-.005em}
+.wp-cover-meta{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:var(--ink-muted);letter-spacing:.14em;text-transform:uppercase}
+.wp-cover-meta span{display:inline-flex;align-items:center;gap:8px}
+.wp-cover-meta .sep{width:3px;height:3px;background:var(--ink-faint);border-radius:50%}
+
+.wp-body h2{font-family:'Barlow Condensed',sans-serif;font-size:clamp(26px,3vw,36px);font-weight:700;color:var(--ink);letter-spacing:-.005em;line-height:1.05;text-transform:uppercase;margin:56px 0 18px;padding-bottom:14px;border-bottom:1px solid var(--line-2);background:linear-gradient(155deg,#FFFFFF 0%,#9BBDFF 80%,#4B7BFF 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.wp-body h2:first-of-type{margin-top:0}
+.wp-body h2 .wp-num{font-family:var(--mono);font-size:.5em;color:var(--accent);margin-right:14px;font-weight:600;letter-spacing:.1em;-webkit-text-fill-color:var(--accent)}
+.wp-body h3{font-family:var(--serif);font-size:21px;font-weight:500;color:var(--ink);letter-spacing:-.015em;margin:38px 0 12px;line-height:1.25}
+.wp-body h3 .wp-num{font-family:var(--mono);font-size:13px;color:var(--accent);margin-right:10px;font-weight:600;letter-spacing:.06em}
+.wp-body h4{font-family:var(--sans);font-size:14px;font-weight:600;color:var(--ink);letter-spacing:.06em;text-transform:uppercase;margin:28px 0 10px}
+.wp-body p{margin:0 0 16px;text-wrap:pretty}
+.wp-body p strong,.wp-body strong{color:var(--ink);font-weight:500}
+.wp-body em{color:var(--ink-dim);font-style:italic}
+.wp-body ul{list-style:none;padding:0;margin:0 0 22px;display:flex;flex-direction:column;gap:10px}
+.wp-body ul li{position:relative;padding-left:24px;line-height:1.7}
+.wp-body ul li::before{content:'';position:absolute;left:0;top:11px;width:10px;height:1px;background:var(--accent)}
+.wp-body ul li strong:first-child{color:var(--ink);font-weight:500}
+.wp-body blockquote{margin:30px 0;padding:22px 26px;border-left:2px solid var(--accent);background:linear-gradient(90deg,rgba(75,123,255,.06),transparent 80%);font-family:var(--serif);font-size:18px;font-style:italic;color:var(--ink);line-height:1.5;letter-spacing:-.005em;border-radius:0 var(--r-md) var(--r-md) 0}
+.wp-body .wp-abstract{margin:0 0 56px;padding:24px 28px;border:1px solid var(--line-2);border-radius:var(--r-md);background:linear-gradient(135deg,rgba(75,123,255,.04),rgba(8,11,21,.4));font-size:13.5px;line-height:1.7}
+.wp-body .wp-abstract-label{font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.22em;text-transform:uppercase;font-weight:600;margin-bottom:10px;display:block}
+.wp-body .wp-abstract em{font-style:italic;color:var(--ink-dim)}
+
+.wp-table-wrap{margin:24px 0;border:1px solid var(--line-2);border-radius:var(--r-md);overflow:hidden;background:rgba(8,11,21,.4)}
+.wp-table-wrap table{width:100%;border-collapse:collapse;font-size:12.5px;font-family:var(--sans)}
+.wp-table-wrap th,.wp-table-wrap td{padding:12px 18px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.55}
+.wp-table-wrap th{font-family:var(--mono);font-size:9.5px;color:var(--accent);letter-spacing:.14em;text-transform:uppercase;font-weight:600;background:rgba(75,123,255,.04);border-bottom:1px solid var(--line-2)}
+.wp-table-wrap td{color:var(--ink-dim);font-weight:400}
+.wp-table-wrap td strong{color:var(--ink);font-weight:500}
+.wp-table-wrap tr:last-child td{border-bottom:none}
+.wp-table-wrap tr:hover td{background:rgba(75,123,255,.025)}
+.wp-table-caption{font-family:var(--mono);font-size:10px;color:var(--ink-muted);letter-spacing:.1em;text-transform:uppercase;margin:8px 0 32px;text-align:center;font-style:normal}
+
+.wp-formula{margin:22px 0;padding:18px 22px;border:1px dashed var(--line-3);border-radius:var(--r-md);background:rgba(8,11,21,.4);font-family:var(--mono);font-size:13px;color:var(--ink);text-align:center;line-height:1.6;letter-spacing:.01em}
+
+.wp-foot{margin-top:64px;padding-top:32px;border-top:1px solid var(--line-2);text-align:center;font-family:var(--mono);font-size:10.5px;color:var(--ink-muted);letter-spacing:.14em;text-transform:uppercase}
+.wp-foot .wp-foot-row{margin-bottom:8px}
+.wp-foot a{color:var(--accent)}
+
+/* Body scroll lock when modal open */
+body.wp-open{overflow:hidden}
+
+@media(max-width:760px){
+  .wp-backdrop{padding:20px 12px}
+  .wp-head{padding:14px 18px}
+  .wp-head-title{font-size:14px}
+  .wp-version{display:none}
+  .wp-body{padding:32px 22px 60px;font-size:13.5px}
+  .wp-body h2{font-size:22px;margin:40px 0 14px}
+  .wp-body h3{font-size:17px;margin:28px 0 10px}
+  .wp-body h2 .wp-num,.wp-body h3 .wp-num{display:block;margin:0 0 4px}
+  .wp-cover{padding:16px 0 30px;margin-bottom:36px}
+  .wp-cover-meta{gap:14px;font-size:9.5px}
+  .wp-table-wrap{font-size:11.5px}
+  .wp-table-wrap th,.wp-table-wrap td{padding:10px 12px}
+  .wp-body blockquote{padding:18px 20px;font-size:16px;margin:24px 0}
+  .wp-body .wp-abstract{padding:18px 20px;margin-bottom:40px}
+}
+</style>
+</head>
+<body>
+<canvas id="bgc"></canvas>
+<canvas id="particle-canvas"></canvas>
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+<div class="aurora-orb orb-1"></div>
+<div class="aurora-orb orb-2"></div>
+<div class="aurora-orb orb-3"></div>
+<div class="aurora-orb orb-4"></div>
+<div class="scanlines"></div>
+<div class="grid-bg"></div>
+<div class="vign"></div>
+<div class="noise"></div>
+
+<!-- ═══════════════════════════ WHITEPAPER MODAL ═══════════════════════════ -->
+<div class="wp-backdrop" id="wpModal" onclick="if(event.target===this)closeWhitepaper()" role="dialog" aria-modal="true" aria-labelledby="wpModalTitle">
+  <div class="wp-frame">
+    <div class="wp-head">
+      <div class="wp-head-l">
+        <svg class="wp-head-mark" viewBox="0 0 32 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="16,0 26,9 16,18 6,9" fill="#EEEEF4"/>
+          <polygon points="16,18 26,9 26,27 16,36" fill="rgba(238,238,244,0.45)"/>
+          <polygon points="16,18 6,9 6,27 16,36" fill="rgba(238,238,244,0.25)"/>
+          <polygon points="16,18 26,27 16,36 6,27" fill="rgba(75,123,255,0.6)"/>
+        </svg>
+        <div class="wp-head-txt">
+          <span class="wp-head-eyebrow">Whitepaper</span>
+          <span class="wp-head-title" id="wpModalTitle">Regore Protocol · v1.0</span>
+        </div>
+      </div>
+      <div class="wp-head-r">
+        <span class="wp-version">Q2 2026</span>
+        <button class="wp-close" onclick="closeWhitepaper()" aria-label="Close whitepaper">✕</button>
+      </div>
+      <div class="wp-progress"><div class="wp-progress-bar" id="wpProgressBar"></div></div>
+    </div>
+    <div class="wp-body" id="wpBody">
+
+      <!-- Cover -->
+      <div class="wp-cover">
+        <div class="wp-cover-eyebrow">Whitepaper · Version 1.0</div>
+        <h1>Regore</h1>
+        <div class="wp-cover-sub">Parametric Insurance Infrastructure for Autonomous AI Agents</div>
+        <div class="wp-cover-meta">
+          <span>Q2 2026</span>
+          <span class="sep"></span>
+          <span>hello@regore.xyz</span>
+          <span class="sep"></span>
+          <span>regore.xyz</span>
+        </div>
+      </div>
+
+      <!-- Abstract -->
+      <div class="wp-abstract">
+        <span class="wp-abstract-label">Abstract</span>
+        <em>Autonomous AI agents now execute billions of dollars in on-chain transactions across DeFi, payments, and data processing — yet no insurance infrastructure exists for them. Regore is a decentralised, chain-agnostic parametric insurance protocol that delivers three coverage products for AI agent operators: financial-loss coverage, per-trade slippage protection, and data-breach indemnity. All claims are resolved without human adjusters. Financial-loss and per-trade payouts trigger automatically via decentralised oracle networks; data-breach claims are settled by a staked, cryptoeconomically incentivised reviewer panel within 72 hours. This paper details the market problem, Regore's protocol design, oracle architecture, tokeneconomics, risk-management framework, and go-to-market strategy.</em>
+      </div>
+
+      <!-- 1. Executive Summary -->
+      <h2><span class="wp-num">01</span>Executive Summary</h2>
+      <p>The rapid proliferation of autonomous AI agents operating in blockchain environments has created an unaddressed systemic risk. These agents — executing trades, managing liquidity, processing payments, and handling sensitive data on behalf of human principals — collectively control billions of dollars in assets across leading high-performance chains. Yet no dedicated insurance infrastructure covers them. When agents fail, are exploited, or breach data obligations, their operators bear the entire loss with no mechanism for recovery.</p>
+      <p>Regore is a decentralised risk-sharing protocol that fills this gap. By combining parametric trigger logic, battle-tested oracle infrastructure, and a transparent on-chain reserve pool, Regore delivers the first AI-agent-native insurance products designed for high-throughput blockchain ecosystems. Three coverage lines address the most material risks operators face:</p>
+      <ul>
+        <li><strong>Financial Loss Coverage:</strong> up to $30,000 per session, triggered automatically when wallet losses exceed a defined threshold.</li>
+        <li><strong>Per-Trade Cover:</strong> up to $5,000 per transaction, settling on the price delta between order submission and execution.</li>
+        <li><strong>Data Breach Indemnity:</strong> up to $30,000 per incident, resolved by a five-member staked reviewer panel within 72 hours.</li>
+      </ul>
+      <p>Regore operates as a decentralised autonomous mutual — modelled on the legal and operational structure validated by Nexus Mutual — requiring no insurance licence and governed by its community of token holders. Premiums are priced algorithmically based on each agent's on-chain risk profile. Reserve capital is pooled, deployed into low-risk DeFi yield strategies, and backstopped by a reinsurance arrangement for large individual claims. Liquidity providers earn risk-adjusted returns of 8–14% APY.</p>
+      <p>Regore is raising a seed round to fund smart-contract development, security auditing, oracle integration, and the onboarding of design-partner operators for a controlled mainnet launch.</p>
+
+      <!-- 2. The Problem -->
+      <h2><span class="wp-num">02</span>The Problem: Uninsured AI Agents in a High-Value Environment</h2>
+
+      <h3><span class="wp-num">2.1</span>The Rise of Autonomous AI Agents On-Chain</h3>
+      <p>The combination of sub-second finality, near-zero transaction costs, and a rich ecosystem of DeFi primitives across leading high-performance chains has made these networks the preferred environment for high-frequency, programmatic activity. AI agents — software systems that autonomously execute actions in pursuit of defined objectives — have become significant participants. They arbitrage price discrepancies across decentralised exchanges, rebalance lending positions, process micro-payments on behalf of users, and increasingly manage sensitive personal and financial data.</p>
+      <p>By early 2026, total value locked across major DeFi ecosystems exceeded tens of billions of dollars. Industry analysts estimate that autonomous agents — including algorithmic trading bots, AI-powered portfolio managers, and automated payment rails — account for a growing share of on-chain transaction volume. The global market for AI-agent transaction infrastructure is projected to reach $40 billion by the end of 2026.</p>
+
+      <h3><span class="wp-num">2.2</span>The Insurance Gap</h3>
+      <p>Despite their scale and sophistication, AI agents are categorically uninsured. Three data points illustrate the severity of this gap:</p>
+      <div class="wp-table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Current State</th><th>Implication for Operators</th></tr></thead>
+          <tbody>
+            <tr><td>DeFi exploit losses (2025)</td><td>$3.4 billion</td><td>Zero covered by insurance products</td></tr>
+            <tr><td>DeFi TVL insured globally</td><td>&lt; 0.5% of total</td><td>AI agents: no dedicated products exist</td></tr>
+            <tr><td>High-performance chain DeFi TVL (Q1 2026)</td><td>Tens of billions</td><td>Entirely uncovered by any protocol</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="wp-table-caption">Table 1 · The AI Agent Insurance Gap</div>
+      <p>Existing DeFi insurance protocols — including Nexus Mutual, InsurAce, and Unslashed Finance — are structurally mismatched for AI-agent use cases. They are designed primarily for Ethereum smart-contract risk, require manual claim filing and adjudication, are not deployed across the high-throughput networks where most agent activity occurs, and offer no per-transaction coverage mechanism. Armilla AI has pioneered enterprise AI liability coverage, but their product targets corporate clients via traditional insurance channels, not on-chain agent operators that require real-time, automated settlement.</p>
+
+      <h3><span class="wp-num">2.3</span>Categories of AI Agent Risk</h3>
+      <p>Through research and operator interviews, Regore has identified three primary categories of loss event that AI agent operators consistently cite as material concerns:</p>
+      <h4>Financial Loss</h4>
+      <p>An agent's wallet is drained through exploitation of a smart-contract vulnerability, a flash-loan attack on a protocol it is interacting with, or a configuration error that causes runaway adverse trading. The operator loses the capital under management with no recourse. This category is particularly severe because agents often operate with positions that significantly exceed the value of the underlying protocol's treasury.</p>
+      <h4>Per-Trade Slippage and Execution Failure</h4>
+      <p>High-frequency agents are systematically exposed to the delta between the price at which an order is submitted and the price at which it executes — a gap caused by block-time latency, network congestion, or MEV extraction. While individual slippage events may be small, they compound across thousands of trades per session and can render otherwise profitable strategies uneconomic. No existing product insures individual transaction execution.</p>
+      <h4>Data Breach</h4>
+      <p>AI agents increasingly handle sensitive data: user wallet addresses, trading strategies, personally identifiable information, and proprietary model weights. A breach — whether through a compromised API key, an insecure storage mechanism, or a man-in-the-middle attack on an agent's communication channel — can expose operators to regulatory liability (particularly under emerging AI-accountability frameworks) and reputational damage that existing indemnity products do not cover in the decentralised context.</p>
+      <blockquote>"When an agent is hacked or leaks data, the operator loses everything. There is no call centre, no adjuster, no policy. Just loss."</blockquote>
+      <p>This absence of a coverage layer is not merely a commercial inconvenience: it constitutes a systemic vulnerability that suppresses the legitimate growth of AI-agent infrastructure. Operators who would otherwise deploy capital at scale are constrained by tail-risk exposure they cannot hedge.</p>
+
+      <!-- 3. The Regore Protocol -->
+      <h2><span class="wp-num">03</span>The Regore Protocol</h2>
+
+      <h3><span class="wp-num">3.1</span>Design Philosophy</h3>
+      <p>Regore is built on four first principles derived from the failure modes of existing DeFi insurance products:</p>
+      <ul>
+        <li><strong>Parametric over indemnity:</strong> wherever possible, payouts trigger from objectively measurable on-chain events rather than subjective loss assessment. This eliminates adjuster fraud, moral hazard from inflated claims, and the delays inherent in manual review.</li>
+        <li><strong>Oracle-native:</strong> coverage triggers are derived from the same oracle infrastructure that the broader DeFi ecosystem relies upon, ensuring that the definition of a loss event is tamper-resistant and verifiable by all parties.</li>
+        <li><strong>Chain-native:</strong> all premium payments, reserve management, claim payouts, and governance actions occur on-chain in stablecoin. No off-chain intermediaries, no custodians, no trust assumptions.</li>
+        <li><strong>Risk-aligned incentives:</strong> every participant in the system — policyholders, liquidity providers, and reviewers — must have economic skin in the game that aligns their behaviour with honest, sustainable operation of the protocol.</li>
+      </ul>
+
+      <h3><span class="wp-num">3.2</span>Coverage Products</h3>
+
+      <h4>Product 1 · Financial Loss Coverage</h4>
+      <p>Financial Loss Coverage protects AI agent operators against material wallet depletion events. At policy inception, the operator registers their agent's primary wallet address and selects a loss threshold expressed as a percentage of the insured balance (minimum 10%, maximum 50%). They lock a 10% co-insurance deposit into an escrow account.</p>
+      <p>A wallet-monitoring oracle observes the wallet balance at 60-second intervals throughout the policy period. When the reported balance falls below the threshold, an independent price feed is used to compute the USD-denominated loss at the moment of breach. The protocol's smart contract automatically transfers the lesser of the computed loss amount or the policy maximum ($30,000) in stablecoin to the operator's registered wallet. No claim filing is required.</p>
+      <div class="wp-table-wrap">
+        <table>
+          <thead><tr><th>Parameter</th><th>Specification</th></tr></thead>
+          <tbody>
+            <tr><td>Maximum payout</td><td><strong>$30,000 stablecoin per session</strong></td></tr>
+            <tr><td>Premium</td><td>Risk-adjusted; contact for current rates</td></tr>
+            <tr><td>Co-insurance deposit</td><td>10% of coverage limit, returned on cancellation</td></tr>
+            <tr><td>Waiting period</td><td>30 days from policy inception (fraud protection)</td></tr>
+            <tr><td>Oracle stack</td><td>Wallet-monitoring oracle + decentralised price feed</td></tr>
+            <tr><td>Settlement</td><td>Automatic, within one oracle cycle (~60 seconds)</td></tr>
+            <tr><td>Payout cap (first 90 days)</td><td>50% of computed loss (fraud suppression period)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="wp-table-caption">Table 2 · Financial Loss Coverage Parameters</div>
+
+      <h4>Product 2 · Per-Trade Cover</h4>
+      <p>Per-Trade Cover insures individual on-chain transactions against adverse price movement between order submission and execution. This product is designed for high-frequency trading agents, market-making bots, and arbitrage strategies where per-transaction slippage is a material operating cost.</p>
+      <p>When the agent submits a transaction, the Regore co-processor records the oracle-reported price of the relevant asset at submission time. After confirmation, the co-processor computes the execution price from the transaction's instruction data. If the negative delta — expressed as <em>(submission price − execution price) / submission price</em> — exceeds the operator's configured threshold, a payout is triggered. A small per-transaction micro-premium is deducted from the operator's pre-funded stablecoin deposit for each covered transaction, regardless of whether a payout occurs.</p>
+      <div class="wp-table-wrap">
+        <table>
+          <thead><tr><th>Parameter</th><th>Specification</th></tr></thead>
+          <tbody>
+            <tr><td>Maximum payout</td><td><strong>$5,000 stablecoin per transaction</strong></td></tr>
+            <tr><td>Premium</td><td>Per-transaction micro-premium; contact for current rates</td></tr>
+            <tr><td>Threshold range</td><td>0.5%–5.0% slippage (operator-configured)</td></tr>
+            <tr><td>Waiting period</td><td>None; active on first transaction</td></tr>
+            <tr><td>Oracle</td><td>Decentralised price feeds (submission and execution)</td></tr>
+            <tr><td>Settlement</td><td>Automatic, within one block</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="wp-table-caption">Table 3 · Per-Trade Cover Parameters</div>
+
+      <h4>Product 3 · Data Breach Indemnity</h4>
+      <p>Data Breach Indemnity covers losses arising from the unauthorised disclosure, exfiltration, or misuse of data handled by a registered AI agent. At policy inception, the operator submits a SHA-256 hash of their agent's execution logs for the prior 30 days — a requirement that establishes a cryptographic baseline of the agent's normal operational footprint and serves as the ground truth for breach verification.</p>
+      <p>When a data breach occurs, the operator submits a claim package comprising: the incident timestamp, a description of the breach mechanism, a signed assertion of loss amount, and execution logs sufficient to demonstrate the breach event. Five reviewers, selected randomly from Regore's staked reviewer registry, are allocated the claim. Reviewers earn a review fee if their vote aligns with the majority outcome; reviewers in the minority forfeit a portion of their stake. A 3-of-5 supermajority is required for claim approval. If approved, stablecoin up to the policy maximum ($30,000) transfers to the operator within 72 hours of claim submission.</p>
+      <div class="wp-table-wrap">
+        <table>
+          <thead><tr><th>Parameter</th><th>Specification</th></tr></thead>
+          <tbody>
+            <tr><td>Maximum payout</td><td><strong>$30,000 stablecoin per incident</strong></td></tr>
+            <tr><td>Premium</td><td>Risk-adjusted; contact for current rates</td></tr>
+            <tr><td>Co-insurance deposit</td><td>10% of coverage limit</td></tr>
+            <tr><td>Proof of operation</td><td>30 days of signed log hashes required at inception</td></tr>
+            <tr><td>Review panel</td><td>5 staked reviewers, randomly selected; 3-of-5 approval</td></tr>
+            <tr><td>Settlement</td><td>Within 72 hours of claim submission</td></tr>
+            <tr><td>Scope</td><td>PII, financial data, proprietary models, API credentials</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="wp-table-caption">Table 4 · Data Breach Indemnity Parameters</div>
+
+      <!-- 4. Architecture -->
+      <h2><span class="wp-num">04</span>Protocol Architecture</h2>
+
+      <h3><span class="wp-num">4.1</span>Smart Contract Stack</h3>
+      <p>Regore is implemented as a set of smart-contract programmes deployed on a leading high-performance blockchain, with portability to additional networks contemplated in the roadmap. The core programmes are:</p>
+      <ul>
+        <li><strong>Registry Programme:</strong> maintains the on-chain registry of agent wallet addresses, coverage parameters, policy states, and oracle authorisation records.</li>
+        <li><strong>Premium Vault Programme:</strong> accepts stablecoin premium payments and co-insurance deposits, routes funds to the reserve pool, and manages escrow release on policy cancellation or claim settlement.</li>
+        <li><strong>Claim Processor Programme:</strong> receives oracle attestations for parametric products and executes automatic transfers; receives signed reviewer votes for data-breach claims and executes conditional transfers upon quorum.</li>
+        <li><strong>Reserve Pool Programme:</strong> manages the aggregate pool of LP capital and unearned premiums; authorises transfers to the claim processor; interfaces with reputable lending markets for idle-capital yield generation.</li>
+        <li><strong>Governance Programme:</strong> implements REGR token-weighted voting on protocol parameter changes, premium model updates, reviewer eligibility criteria, and reserve deployment decisions.</li>
+      </ul>
+      <p>All programmes are formally verified against a specification that constrains state transitions to prevent reentrancy, integer overflow, and unauthorised fund access. The codebase will be audited by a reputable security firm prior to mainnet deployment.</p>
+
+      <h3><span class="wp-num">4.2</span>Oracle Architecture</h3>
+      <p>Regore's oracle architecture is deliberately layered, with each layer designed to handle a specific category of information and provide a distinct set of security guarantees:</p>
+
+      <h4>Layer 1 · Parametric Oracle</h4>
+      <p>A pair of decentralised oracle networks provides real-time price feeds and configurable off-chain data feeds (including wallet balance polling and custom computation tasks). For Financial Loss Coverage and Per-Trade Cover, these feeds serve as the sole source of truth: if the data says a loss occurred, the payout executes. No human discretion is applied. This layer handles approximately 95% of expected claims by volume.</p>
+
+      <h4>Layer 2 · Hybrid Staked Review (UMA-style Optimistic Oracle)</h4>
+      <p>For Data Breach Indemnity — where the loss event is a real-world occurrence that cannot be directly observed on-chain — Regore implements a reviewer panel modelled on UMA Protocol's optimistic oracle and the Nexus Mutual claim-assessment framework. Reviewers must stake a minimum of 1,000 REGR tokens to join the registry. For each claim, five reviewers are selected using a verifiable random function (VRF) seeded by the claim transaction hash.</p>
+      <p>Reviewer incentives are structured to produce honest outcomes: the expected return from voting truthfully (earning the review fee plus stake preservation) exceeds the expected return from colluding with a fraudulent claimant (earning a share of the fraudulent payout minus stake forfeiture risk). This property holds as long as the proportion of dishonest reviewers remains below 40%, which the staking requirement and slashing mechanism are calibrated to achieve.</p>
+
+      <h4>Layer 3 · DAO Governance Escalation</h4>
+      <p>Any party — claimant, reviewer, or liquidity provider — may escalate a disputed data-breach claim to the protocol's DAO governance layer, implemented via the Governance Programme. Disputed claims are put to a token-weighted vote among all REGR holders, with a seven-day deliberation period. This layer serves as the final backstop for edge cases that the reviewer panel mechanism cannot definitively resolve.</p>
+
+      <h3><span class="wp-num">4.3</span>Pricing Model</h3>
+      <p>Premium pricing is computed on-chain at policy inception using a base rate multiplied by four risk factors derived from the agent's on-chain history and declared operational parameters:</p>
+      <div class="wp-formula"><strong>Premium</strong> = Coverage Limit × Base Rate (4%) × Capital Multiplier × Data Sensitivity Factor × Autonomy Level Factor</div>
+      <p>The Capital Multiplier scales with the ratio of capital under management to the operator's historical average, penalising sudden leverage increases. The Data Sensitivity Factor reflects the classification of data the agent handles (from 1.0× for public data to 2.5× for regulated PII). The Autonomy Level Factor reflects the degree of human oversight in the agent's decision loop (from 1.0× for supervised agents to 1.8× for fully autonomous agents). All factors are declared by the operator and verified against on-chain evidence where available; misrepresentation voids coverage.</p>
+
+      <!-- 5. Risk Management -->
+      <h2><span class="wp-num">05</span>Risk Management Framework</h2>
+
+      <h3><span class="wp-num">5.1</span>Reserve Architecture</h3>
+      <p>The Regore reserve pool is structured to ensure solvency under realistic stress scenarios while providing competitive returns to liquidity providers. At launch, the protocol targets a coverage-to-reserve ratio of 1.5:1 — meaning aggregate coverage limits outstanding will not exceed 150% of the reserve pool's stablecoin balance. This ratio is enforced programmatically: new policy issuance is paused if the ratio would be breached.</p>
+      <p>A minimum surplus fund of 15% of total premiums is retained before any distributions are made to liquidity providers. This fund accumulates over time and provides a first-loss buffer ahead of the general reserve pool.</p>
+
+      <h3><span class="wp-num">5.2</span>Fraud Suppression Mechanisms</h3>
+      <p>Regore's fraud suppression stack combines four independent mechanisms, each targeting a different attack vector:</p>
+      <ul>
+        <li><strong>30-day waiting period:</strong> prevents purchase of coverage after a known exploit event has occurred but before it is publicly disclosed. This eliminates the most common form of insurance fraud observed in DeFi protocols.</li>
+        <li><strong>10% co-insurance deposit:</strong> requires policyholders to bear 10% of the first-loss exposure. Forfeited 100% on fraudulent claims and 50% on claims rejected for insufficient evidence. Creates real financial disincentive against speculative or inflated claims.</li>
+        <li><strong>30-day proof-of-operation requirement (Data Breach):</strong> establishes that the agent was genuinely operational before the alleged breach, preventing the creation of phantom agents for the purpose of filing fabricated claims.</li>
+        <li><strong>50% payout cap during the first 90 days:</strong> limits maximum exposure during the period before the protocol has accumulated sufficient historical loss data to validate its pricing model.</li>
+      </ul>
+
+      <h3><span class="wp-num">5.3</span>Reinsurance Arrangement</h3>
+      <p>Claims exceeding $20,000 on any individual policy are eligible for reinsurance recovery under an arrangement under negotiation with a leading decentralised reinsurance protocol. Reinsurance participation provides a capital backstop that allows Regore to offer coverage limits that would otherwise be imprudent relative to the reserve pool size at launch. The reinsurance premium is treated as a protocol operating expense, borne by the protocol surplus fund rather than passed directly to policyholders.</p>
+
+      <h3><span class="wp-num">5.4</span>Reserve Deployment</h3>
+      <p>Idle reserve capital not required to satisfy near-term claim obligations is deployed into vetted DeFi lending markets, generating a base yield of approximately 4–6% APY. This yield supplements the premium income distributed to liquidity providers, improving their effective return without increasing policyholder costs. The protocol governance defines a maximum deployment cap — initially 40% of the reserve pool — to ensure sufficient liquidity for immediate claim settlement.</p>
+
+      <!-- 6. Tokeneconomics -->
+      <h2><span class="wp-num">06</span>Tokeneconomics</h2>
+
+      <h3><span class="wp-num">6.1</span>The REGR Token</h3>
+      <p>REGR is the native governance and utility token of the Regore protocol. Its functions are:</p>
+      <ul>
+        <li><strong>Governance:</strong> REGR holders vote on protocol parameters, premium model updates, reserve deployment strategies, reviewer eligibility criteria, and treasury allocations.</li>
+        <li><strong>Reviewer staking:</strong> Reviewers must stake a minimum of 1,000 REGR tokens to participate in Data Breach Indemnity claim assessment. Stakes are slashed for dishonest or negligent review.</li>
+        <li><strong>Protocol fee discounts:</strong> Operators holding REGR receive a discount of up to 15% on their monthly premium, creating demand-side utility that does not depend on speculative value.</li>
+        <li><strong>LP participation:</strong> Liquidity providers who stake REGR alongside their stablecoin deposits receive boosted yield allocations, incentivising long-term capital commitment.</li>
+      </ul>
+      <p>REGR has a fixed total supply of 100,000,000 tokens. It is not launched at protocol inception; the token launch is scheduled for a future milestone, after the protocol has demonstrated sustainable premium revenue and a loss ratio within the modelled range. This sequencing avoids the governance capture and speculative dynamics that have undermined other DeFi insurance protocols that launched tokens before establishing product-market fit.</p>
+
+      <h3><span class="wp-num">6.2</span>Revenue Distribution</h3>
+      <p>Gross premium revenue is distributed in the following waterfall:</p>
+      <div class="wp-table-wrap">
+        <table>
+          <thead><tr><th>Destination</th><th>Allocation</th></tr></thead>
+          <tbody>
+            <tr><td>Protocol surplus fund (first-loss buffer)</td><td>15% of gross premiums</td></tr>
+            <tr><td>Reinsurance premium</td><td>~5% of gross premiums (claims &gt; $20K)</td></tr>
+            <tr><td>Liquidity provider yield pool</td><td>Pro-rata share of remaining premiums after costs</td></tr>
+            <tr><td>Reviewer fees (Data Breach product only)</td><td>0.5% of covered Data Breach premiums per claim</td></tr>
+            <tr><td>Protocol treasury (development, audits)</td><td>5% of gross premiums</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="wp-table-caption">Table 5 · Premium Revenue Distribution Waterfall</div>
+
+      <h3><span class="wp-num">6.3</span>Liquidity Provider Economics</h3>
+      <p>Liquidity providers deposit stablecoin into the Regore reserve pool. Their capital is at risk in the event of claims exceeding premium income and the surplus fund. In exchange, they receive a pro-rata share of net premium income after the protocol surplus allocation and operating expenses, a pro-rata share of yield generated by the deployed reserve capital, and REGR token boost allocations proportional to their staked REGR balance (post-token launch).</p>
+      <p>Under the base-case model (loss ratio: 60%, blended premium consistent with risk-adjusted pricing, reserve deployment yield: 5%), the projected LP return is 11.4% APY. Liquidity providers are subject to a seven-day unbonding period before withdrawal, which prevents liquidity runs in the immediate aftermath of a large claim event.</p>
+
+      <!-- 7. Market -->
+      <h2><span class="wp-num">07</span>Market and Competitive Landscape</h2>
+
+      <h3><span class="wp-num">7.1</span>Addressable Market</h3>
+      <p>Regore's addressable market sits at the intersection of three converging trends: the growth of AI-agent infrastructure, the expansion of DeFi on high-performance chains, and the emergence of regulatory frameworks that impose liability on AI operators. The TAM is estimated as follows:</p>
+      <div class="wp-table-wrap">
+        <table>
+          <thead><tr><th>Market Segment</th><th>2026 Estimate</th><th>Regore Relevance</th></tr></thead>
+          <tbody>
+            <tr><td>AI-agent transaction volume (DeFi + payments)</td><td>$40B+</td><td>Per-trade and financial-loss products</td></tr>
+            <tr><td>High-performance chain DeFi TVL</td><td>Tens of billions</td><td>Financial-loss exposure for active agents</td></tr>
+            <tr><td>DeFi insurance TVL (global)</td><td>$1.7B (growing to $5–8B)</td><td>Reserve capital and product design benchmarks</td></tr>
+            <tr><td>Enterprise AI deployment spend (global)</td><td>$150B+</td><td>Data breach indemnity product</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="wp-table-caption">Table 6 · Regore Total Addressable Market</div>
+
+      <h3><span class="wp-num">7.2</span>Competitive Analysis</h3>
+      <p>No existing protocol directly competes with Regore's combined value proposition. The competitive landscape can be segmented into the following:</p>
+      <div class="wp-table-wrap">
+        <table>
+          <thead><tr><th>Protocol</th><th>Coverage Type</th><th>Multi-chain?</th><th>Per-Trade?</th><th>AI Agent-Native?</th></tr></thead>
+          <tbody>
+            <tr><td>Nexus Mutual</td><td>Smart-contract risk</td><td>Limited</td><td>No</td><td>No</td></tr>
+            <tr><td>InsurAce</td><td>Protocol coverage</td><td>Limited</td><td>No</td><td>No</td></tr>
+            <tr><td>Unslashed Finance</td><td>DeFi coverage</td><td>Limited</td><td>No</td><td>No</td></tr>
+            <tr><td>Armilla AI</td><td>AI liability</td><td>Off-chain</td><td>No</td><td>Partial (enterprise)</td></tr>
+            <tr><td><strong>Regore</strong></td><td><strong>AI agent-native</strong></td><td><strong>Yes</strong></td><td><strong>Yes</strong></td><td><strong>Yes (full)</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="wp-table-caption">Table 7 · Competitive Differentiation</div>
+      <p>Regore's structural advantages are: (1) first-mover for any AI-agent insurance product on high-performance chains; (2) the only protocol offering per-trade parametric coverage; (3) native integration with the oracle infrastructure already trusted by the protocols Regore's policyholders interact with; and (4) a product design that explicitly optimises for the operational requirements of autonomous agents rather than adapting a human-centric insurance model.</p>
+
+      <!-- 8. Traction -->
+      <h2><span class="wp-num">08</span>Traction and Validation</h2>
+
+      <h3><span class="wp-num">8.1</span>Product Development</h3>
+      <p>Regore has completed the following milestones prior to its seed raise:</p>
+      <ul>
+        <li>Full-stack frontend MVP deployed on testnet, including Web3 wallet integration, a three-product policy purchase flow, a live agent monitoring dashboard, a per-trade feed interface, an LP deposit and withdrawal interface, and a claims submission portal.</li>
+        <li>Decentralised oracle feeds integrated on testnet. Parametric trigger logic for both Financial Loss Coverage and Per-Trade Cover has been tested against real price data, with sub-second latency confirmed for Per-Trade Cover and 60-second polling confirmed for Financial Loss Coverage.</li>
+        <li>SHA-256 log hash commitment mechanism designed and prototyped. The reviewer selection and staking interface is designed and pending smart-contract implementation.</li>
+      </ul>
+
+      <h3><span class="wp-num">8.2</span>Customer Discovery</h3>
+      <p>Regore conducted structured interviews with ten AI-agent operators across three categories: DeFi trading bots (four), data-processing agents (three), and payment automation agents (three). Key findings:</p>
+      <ul>
+        <li>Eight of ten operators confirmed willingness to pay a meaningful monthly premium for Financial Loss Coverage on their production agents, representing a strong signal of product-market fit.</li>
+        <li>Six of ten operators cited per-trade slippage as a 'significant' or 'material' operating cost, validating the economic case for Per-Trade Cover.</li>
+        <li>All ten operators were unaware of any existing insurance product that covered their agents' operations, confirming the absence of incumbent competition.</li>
+      </ul>
+
+      <h3><span class="wp-num">8.3</span>Ecosystem Timing</h3>
+      <p>The market infrastructure for Regore's product is maturing rapidly. In March 2026, Aon — one of the world's largest insurance brokers — completed the first stablecoin insurance premium settlement on a high-performance chain. Armilla AI secured Lloyd's of London backing for the first AI model liability policy in April 2025. These developments signal that institutional capital and traditional risk-transfer markets are actively seeking exposure to AI insurance risk — a validation of the category that Regore is designed to serve natively.</p>
+
+      <h3><span class="wp-num">8.4</span>Liquidity Provider Interest</h3>
+      <p>Three DeFi treasury teams have engaged in preliminary conversations about participating as liquidity providers in the Regore reserve pool at the target return of 11.4% APY. One investment fund focused on on-chain risk infrastructure has expressed interest in committing capital at protocol launch, subject to completion of the security audit and mainnet deployment.</p>
+
+      <!-- 9. GTM -->
+      <h2><span class="wp-num">09</span>Go-to-Market Strategy</h2>
+
+      <h3><span class="wp-num">9.1</span>Phase 1 · Controlled Launch</h3>
+      <p>The controlled launch phase prioritises quality over quantity. Regore will onboard a maximum of ten design-partner operators recruited from the customer-discovery process. These operators receive subsidised premiums in exchange for committing to provide detailed operational feedback, participate in the reviewer registry with their technical staff, and serve as public references for the protocol. The design-partner programme allows Regore to validate the claim-trigger logic, pricing model, and reviewer-incentive structure against real-world loss events before opening the protocol to permissionless access.</p>
+      <p><strong>Target metrics at end of Phase 1:</strong> $500,000 stablecoin in reserve pool TVL; ten active policies; zero unresolved disputed claims; loss ratio within modelled range (55–65%).</p>
+
+      <h3><span class="wp-num">9.2</span>Phase 2 · Ecosystem Growth</h3>
+      <p>Phase 2 opens the protocol to permissionless policy purchase and LP participation. The Data Breach Indemnity product is launched, and the reviewer registry is opened to any REGR staker meeting the minimum stake threshold. Regore pursues integrations with the major DeFi protocols whose users are most likely to be operating AI agents: DEX aggregators, MEV infrastructure, perpetuals venues, and NFT automation platforms. A B2B API is launched that allows AI-agent platforms and agent-building frameworks to embed Regore coverage as a native feature of their products.</p>
+      <p><strong>Target metrics at end of Phase 2:</strong> $5,000,000 stablecoin in reserve pool TVL; 200 active policies; 50 active reviewer stakers; loss ratio within modelled range.</p>
+
+      <h3><span class="wp-num">9.3</span>Phase 3 · Multi-Chain Expansion and Token Launch</h3>
+      <p>Phase 3 expands Regore across additional high-performance ecosystems — including EVM-compatible chains and emerging non-EVM L1s — using a cross-chain bridge for reserve pool liquidity. The REGR governance token is launched, enabling decentralised governance of all protocol parameters. An enterprise licensing programme is introduced for traditional companies that are deploying AI agents but require on-chain-verifiable insurance indemnity for regulatory compliance purposes.</p>
+      <p><strong>Target metrics at end of Phase 3:</strong> $50,000,000 stablecoin in reserve pool TVL; 2,000 active policies across multiple chains; REGR governance fully active.</p>
+
+      <!-- 10. Financial Model -->
+      <h2><span class="wp-num">10</span>Financial Model</h2>
+
+      <h3><span class="wp-num">10.1</span>Revenue Projections</h3>
+      <p>The following projections are based on base-case assumptions: blended monthly premium consistent with risk-adjusted pricing, 60% loss ratio, and reserve deployment yield of 5% APY. These assumptions are conservative relative to comparable DeFi insurance protocols.</p>
+      <div class="wp-table-wrap">
+        <table>
+          <thead><tr><th>Period</th><th>Active Policies</th><th>Reserve TVL</th><th>Annual Revenue</th></tr></thead>
+          <tbody>
+            <tr><td>Launch</td><td>10</td><td>$500K</td><td>$8,500</td></tr>
+            <tr><td>+3 months</td><td>40</td><td>$1.5M</td><td>$28,000</td></tr>
+            <tr><td>+6 months</td><td>100</td><td>$3M</td><td>$72,000</td></tr>
+            <tr><td>+12 months</td><td>200+</td><td>$5M+</td><td>$210,000+</td></tr>
+            <tr><td>+24 months</td><td>2,000+</td><td>$50M+</td><td>$2.1M+</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="wp-table-caption">Table 8 · Revenue Projections (Base Case)</div>
+
+      <h3><span class="wp-num">10.2</span>Use of Seed Funds</h3>
+      <p>The seed round will be allocated as follows:</p>
+      <div class="wp-table-wrap">
+        <table>
+          <thead><tr><th>Category</th><th>% of Round</th></tr></thead>
+          <tbody>
+            <tr><td>Engineering (smart contracts, oracle integration, security audit)</td><td>40%</td></tr>
+            <tr><td>Reserve pool seeding (initial LP capital)</td><td>25%</td></tr>
+            <tr><td>Business development and ecosystem relationships</td><td>20%</td></tr>
+            <tr><td>Operations, legal structure, and compliance</td><td>15%</td></tr>
+            <tr><td><strong>Total</strong></td><td><strong>100%</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="wp-table-caption">Table 9 · Use of Seed Proceeds</div>
+
+      <!-- 11. Team -->
+      <h2><span class="wp-num">11</span>Team</h2>
+
+      <h3><span class="wp-num">11.1</span>Current Team</h3>
+      <p>Regore was founded by a team with deep expertise in AI-agent infrastructure, DeFi protocol design, and product strategy. The founding team has built and shipped full-stack Web3 products from inception to deployment, with experience spanning financial advisory, product management, and blockchain development.</p>
+
+      <h3><span class="wp-num">11.2</span>Open Roles</h3>
+      <p>Regore is actively recruiting for two critical roles:</p>
+      <ul>
+        <li><strong>Chief Technology Officer / Co-Founder:</strong> senior smart-contract developer with demonstrated expertise in DeFi protocol architecture across high-performance chains. This person will own the smart-contract architecture, oracle integration, security-audit process, and devnet-to-mainnet deployment. Equity stake available; compensation benchmarked to market rates for senior protocol engineers.</li>
+        <li><strong>Head of Risk:</strong> actuarial background or DeFi insurance protocol experience. Will design and maintain the pricing model, calibrate reserve ratios, structure the reinsurance programme, and build the loss-ratio model from historical DeFi exploit data. Reporting to the CEO.</li>
+      </ul>
+      <p>Regore is seeking advisors from organisations including Nexus Mutual, leading reinsurance protocols, major oracle networks, Armilla AI, and prominent AI-agent protocols. Introductions to qualified candidates for open roles are welcomed.</p>
+
+      <!-- 12. Legal -->
+      <h2><span class="wp-num">12</span>Legal Structure and Regulatory Considerations</h2>
+
+      <h3><span class="wp-num">12.1</span>Decentralised Mutual Model</h3>
+      <p>Regore is structured as a decentralised risk-sharing mutual, not as a licensed insurance company. This structure — pioneered by Nexus Mutual and validated through several years of operation and regulatory scrutiny — does not require the protocol to hold an insurance licence in most jurisdictions because coverage is provided through a discretionary mutual rather than a regulated insurance contract. Members of the mutual purchase cover from a shared pool of capital contributed by other members and LP participants.</p>
+      <p>This structure is legally distinct from insurance in several important respects: coverage is discretionary (the protocol's smart contracts determine outcomes algorithmically rather than through contractual obligation), membership is open to any person meeting the registration criteria, and the mutual is governed by its token-holding members rather than by corporate directors. Regore's legal counsel is reviewing the applicability of this structure under relevant jurisdictions, with a focus on Singapore, the British Virgin Islands, and the Cayman Islands as potential domiciles for the protocol's legal entity.</p>
+
+      <h3><span class="wp-num">12.2</span>Disclaimers</h3>
+      <p>Regore does not offer licensed insurance products. Coverage provided by the Regore protocol is discretionary mutual coverage, not an insurance contract. Policyholders should be aware that the protocol's smart contracts, while subject to rigorous security auditing, may contain undiscovered vulnerabilities. Past performance of DeFi insurance protocols does not guarantee future performance of Regore. The REGR token is a utility and governance token and is not offered as a security or investment.</p>
+
+      <!-- 13. Conclusion -->
+      <h2><span class="wp-num">13</span>Conclusion</h2>
+      <p>The autonomous AI agent is the defining new participant in decentralised finance. These agents now control billions of dollars in assets, execute millions of transactions, and handle sensitive data at a scale and speed that no human operator can match. Yet they remain categorically uninsured — a gap that suppresses the legitimate deployment of capital, exposes operators to unhedgeable tail risk, and creates systemic fragility in an ecosystem that is otherwise rapidly maturing.</p>
+      <p>Regore addresses this gap with a precision-engineered, chain-native parametric insurance protocol. By combining decentralised oracle infrastructure with a rigorous staked-reviewer mechanism for non-parametric claims, Regore delivers coverage that settles in seconds for parametric events and within 72 hours for data-breach incidents — without brokers, adjusters, or paper forms.</p>
+      <p>The market opportunity is large, the competitive field is empty, and the technical infrastructure to build this product now exists across multiple high-performance chains. Regore is building the insurance layer that autonomous AI agents require and that the ecosystem urgently needs.</p>
+      <blockquote>"No AI agent should operate without coverage. Regore is building the infrastructure to make that the default."</blockquote>
+
+      <!-- Foot -->
+      <div class="wp-foot">
+        <div class="wp-foot-row"><a href="mailto:hello@regore.xyz">hello@regore.xyz</a> &nbsp;·&nbsp; regore.xyz</div>
+        <div class="wp-foot-row">Version 1.0 &nbsp;·&nbsp; Q2 2026 &nbsp;·&nbsp; Confidential</div>
+        <div class="wp-foot-row" style="margin-top:14px;color:var(--ink-faint)">© 2026 Regore Protocol</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ WALLET CONNECT MODAL ═══════════════════════════ -->
+<div class="ph-backdrop" id="phModal" onclick="if(event.target===this)closePhModal()">
+  <div class="ph-box">
+    <span class="ph-close" onclick="closePhModal()">✕</span>
+    <img class="ph-logo" id="phLogo" alt="Regore"/>
+    <div class="ph-title">Connect Wallet</div>
+    <div class="ph-sub">Connect your Web3 wallet to access the Regore protocol and manage coverage on-chain.</div>
+    <button class="ph-btn" id="phBtn" onclick="connectWallet()">
+      <div class="ph-btn-icon">⬢</div>
+      <div class="ph-btn-txt">
+        <div class="ph-btn-label">Connect Web3 Wallet</div>
+        <div class="ph-btn-sub" id="phBtnSub">Approve in your wallet</div>
+      </div>
+      <div class="ph-btn-arrow" id="phArrow">→</div>
+    </button>
+    <div class="ph-err" id="phErr"></div>
+    <div class="ph-no-wallet" id="phNoWallet">No compatible wallet detected. <a href="#" target="_blank">Install a Web3 wallet →</a></div>
+    <div class="ph-divider"><div class="ph-div-line"></div><div class="ph-div-txt">Multi-chain · Testnet</div><div class="ph-div-line"></div></div>
+    <div class="ph-badges">
+      <div class="ph-badge">Non-custodial</div>
+      <div class="ph-badge">Stablecoin-native</div>
+      <div class="ph-badge">Oracle-verified</div>
+    </div>
+    <div class="ph-legal">Regore is a decentralized risk-sharing protocol — not licensed insurance. By connecting, you acknowledge the protocol terms.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ NAV ═══════════════════════════ -->
+<nav id="mainNav">
+  <a class="logo" href="#">
+    <svg id="navLogo" width="32" height="36" viewBox="0 0 32 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Diamond geometric mark matching Regore brand -->
+      <polygon points="16,0 26,9 16,18 6,9" fill="#EEEEF4"/>
+      <polygon points="16,18 26,9 26,27 16,36" fill="rgba(238,238,244,0.45)"/>
+      <polygon points="16,18 6,9 6,27 16,36" fill="rgba(238,238,244,0.25)"/>
+      <polygon points="16,18 26,27 16,36 6,27" fill="rgba(75,123,255,0.6)"/>
+    </svg>
+    <div class="logo-wrap">
+      <span class="logo-name">REGORE</span>
+      <span class="logo-tag">Protocol · Testnet</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#products">Products</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#metrics">Protocol</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#" onclick="openWhitepaper(event)">Whitepaper</a></li>
+  </ul>
+  <div class="nav-r">
+    <a class="btn-ghost" href="mailto:hello@regore.xyz">Contact</a>
+    <a class="btn-solid" href="#access" onclick="document.getElementById('access').scrollIntoView({behavior:'smooth'});event.preventDefault();">Request access<span>→</span></a>
+    <button class="hamburger" id="hambBtn" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mob-menu" id="mobMenu">
+  <ul>
+    <li><a href="#products" onclick="toggleMenu()">Products</a></li>
+    <li><a href="#architecture" onclick="toggleMenu()">Architecture</a></li>
+    <li><a href="#metrics" onclick="toggleMenu()">Protocol</a></li>
+    <li><a href="#pricing" onclick="toggleMenu()">Pricing</a></li>
+    <li><a href="#faq" onclick="toggleMenu()">FAQ</a></li>
+    <li><a href="#" onclick="event.preventDefault();toggleMenu();openWhitepaper(event)">Whitepaper</a></li>
+  </ul>
+  <div class="mob-menu-btns">
+    <a class="btn-ghost" href="mailto:hello@regore.xyz" onclick="toggleMenu()">Contact</a>
+    <a class="btn-solid" href="#access" onclick="toggleMenu();document.getElementById('access').scrollIntoView({behavior:'smooth'});event.preventDefault();">Request access →</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+<section class="hero">
+  <div class="hero-grid">
+
+    <!-- LEFT: editorial text -->
+    <div class="hero-left">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        <span>Pre-launch · Testnet live</span>
+      </div>
+      <h1>
+        Parametric insurance infrastructure for autonomous agents.
+      </h1>
+      <p class="hero-lead">
+        Regore is the on-chain coverage layer for AI agents that move capital. Three parametric products — financial loss, per-transaction slippage, and data breach — engineered for oracle-verified, stablecoin-denominated settlement on a high-performance blockchain.
+      </p>
+      <div class="hero-ctas">
+        <button class="cta-p" onclick="document.getElementById('access').scrollIntoView({behavior:'smooth'})">Request early access<span class="arrow">→</span></button>
+        <a class="cta-s" href="#products">View coverage design</a>
+      </div>
+    </div>
+
+    <!-- RIGHT: protocol design card -->
+    <div class="hero-right">
+      <div class="hero-card">
+        <div class="hero-card-head">
+          <div class="hc-title">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);flex-shrink:0;display:inline-block"></span>
+            Protocol · Design spec
+          </div>
+          <div class="hc-live"><span class="pulse"></span>Testnet</div>
+        </div>
+        <div class="hc-body">
+          <div class="hc-row">
+            <div class="hc-label">Coverage type</div>
+            <div class="hc-val"><span class="g">Parametric</span></div>
+          </div>
+          <div class="hc-row">
+            <div class="hc-label">Settlement asset</div>
+            <div class="hc-val">Stablecoin<span class="u">on-chain</span></div>
+          </div>
+          <div class="hc-row">
+            <div class="hc-label">Financial loss limit</div>
+            <div class="hc-val"><span class="g">$30,000</span><span class="u">/ session</span></div>
+          </div>
+          <div class="hc-row">
+            <div class="hc-label">Per-trade max payout</div>
+            <div class="hc-val">$5,000<span class="u">/ tx</span></div>
+          </div>
+          <div class="hc-row">
+            <div class="hc-label">Oracle cycle</div>
+            <div class="hc-val">60<span class="u">seconds</span></div>
+          </div>
+          <div class="hc-row">
+            <div class="hc-label">Target reserve ratio</div>
+            <div class="hc-val"><span class="g">1.5×</span></div>
+          </div>
+          <div class="hc-row">
+            <div class="hc-label">Settlement target</div>
+            <div class="hc-val"><span class="g">&lt; 60s</span><span class="u">parametric</span></div>
+          </div>
+        </div>
+        <div style="padding:14px 22px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between">
+          <span style="font-family:var(--mono);font-size:9.5px;color:var(--ink-faint);letter-spacing:.1em;text-transform:uppercase">Smart contracts · [Network]</span>
+          <a href="#architecture" style="font-family:var(--mono);font-size:9.5px;color:var(--accent);letter-spacing:.1em;text-decoration:none">View architecture →</a>
+        </div>
+      </div>
+
+      <!-- Mini stat pills below card -->
+      <div class="hero-pills">
+        <div class="hero-pill"><span class="pill-dot" style="background:var(--accent)"></span>No claim filing</div>
+        <div class="hero-pill"><span class="pill-dot" style="background:var(--sol)"></span>Oracle-verified</div>
+        <div class="hero-pill"><span class="pill-dot" style="background:var(--blue)"></span>Stablecoin settlement</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom strip: ecosystem partners -->
+  <div class="hero-bottom">
+    <div class="hero-bottom-inner">
+      <span class="hero-bottom-label">Built for leading blockchains</span>
+      <div class="hero-bottom-logos">
+        <div class="trust-item"><span class="mark" style="background:linear-gradient(135deg,#627EEA,#8FA1F0)"></span>Ethereum</div>
+        <div class="trust-item"><span class="mark" style="background:linear-gradient(135deg,#14F195,#9945FF)"></span>Solana</div>
+        <div class="trust-item"><span class="mark" style="background:linear-gradient(135deg,#4DA2FF,#1A6BD4)"></span>Sui</div>
+        <div class="trust-item"><span class="mark" style="background:linear-gradient(135deg,#2EE5C0,#0CB1A3)"></span>Aptos</div>
+        <div class="trust-item"><span class="mark" style="background:linear-gradient(135deg,#2775CA,#1DA1F2)"></span>USDC</div>
+      </div>
+      <div class="hero-scroll-cue">
+        <span style="font-family:var(--mono);font-size:9px;color:var(--ink-faint);letter-spacing:.18em;text-transform:uppercase">Scroll</span>
+        <span class="hero-scroll-arrow">↓</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sec-divider"></div>
+<!-- ═══════════════════════════ PROBLEM BAND ═══════════════════════════ -->
+<section class="prob-band">
+  <div class="prob-wrap">
+    <div class="prob-head reveal">
+      <div class="prob-head-l">
+        <div class="eyebrow">The coverage gap</div>
+        <h2>Autonomous agents<br/>operate capital. None of it is <em>insured</em>.</h2>
+      </div>
+      <div class="prob-head-r">
+        AI agents are increasingly executing on-chain strategies, transacting autonomously, and handling sensitive data — but insurance infrastructure has not kept pace. The result: a growing category of operational risk with no native on-chain risk-transfer mechanism, and no transparent way for agent operators to underwrite that risk.
+      </div>
+    </div>
+    <div class="prob-grid reveal-stagger">
+      <div class="pc">
+        <div class="pc-stat r">01</div>
+        <div class="pc-h">DeFi and agent exploit losses keep growing</div>
+        <div class="pc-label">Autonomous agent failures, smart contract exploits, and MEV extraction account for meaningful capital loss every year. Traditional insurers do not underwrite this exposure, and existing on-chain mutuals focus on protocol cover — not operator cover.</div>
+        <div class="pc-src">Category · Operational risk · Agent-side</div>
+      </div>
+      <div class="pc">
+        <div class="pc-stat a">02</div>
+        <div class="pc-h">Existing DeFi insurance covers protocols, not operators</div>
+        <div class="pc-label">Discretionary mutuals like Nexus and InsurAce cover smart-contract risk at the protocol layer. Agents running capital on top of those protocols are unprotected when the failure originates in the agent itself — a strategy error, slippage event, or data leak.</div>
+        <div class="pc-src">Category · Coverage layer gap</div>
+      </div>
+      <div class="pc">
+        <div class="pc-stat g">03</div>
+        <div class="pc-h">Agentic capital is a greenfield category</div>
+        <div class="pc-label">The volume of capital under autonomous management is expanding rapidly across every major chain. A new class of operator with new risk surfaces requires a new class of parametric, oracle-verified, on-chain risk-transfer infrastructure — not retrofitted legacy policies.</div>
+        <div class="pc-src">Category · Greenfield opportunity</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PRODUCTS ═══════════════════════════ -->
+<section class="sec" id="products">
+  <div class="sec-head reveal">
+    <div class="eyebrow">01 — Coverage products</div>
+    <h2>Three coverage instruments. <em>One protocol.</em></h2>
+    <p class="sec-sub">Parametric triggers underwritten on-chain. Pricing is risk-based — computed from agent autonomy, capital under management, and historical on-chain behavior.</p>
+  </div>
+  <div class="prod-grid reveal-stagger">
+
+    <div class="prod-card" data-p="fin">
+      <div class="pbadge pbadge-g">⚡ Fully parametric</div>
+      <h3>Financial Loss</h3>
+      <div class="prod-subtitle">Wallet-level drawdown coverage</div>
+      <div class="prod-limit-row">
+        <div class="prod-limit prod-limit-c">$30,000</div>
+      </div>
+      <div class="prod-per">Coverage limit · per session · auto-triggered</div>
+      <p class="prod-desc">Activates when an agent's wallet balance breaches a pre-set drawdown threshold. On-chain wallet oracles monitor balances on 60-second intervals, price oracles resolve USD-denominated loss, and stablecoin payouts settle automatically — no claim filing required.</p>
+      <ul class="prod-feats feat-g">
+        <li><span class="ic">→</span>Continuous on-chain wallet monitoring via decentralized oracle network</li>
+        <li><span class="ic">→</span>Independent price feeds for accurate USD-denominated loss calculation</li>
+        <li><span class="ic">→</span>Automatic stablecoin payout — zero claim friction</li>
+        <li><span class="ic">→</span>Session-bound or continuous coverage modes available</li>
+      </ul>
+      <div class="prod-foot">
+        <div class="prod-price">Contact<span style="color:var(--ink-muted);font-weight:400"> us</span><span class="sm">For pricing details</span></div>
+        <a href="#pricing" class="prod-cta">Details<span class="a">→</span></a>
+      </div>
+    </div>
+
+    <div class="prod-card" data-p="tra">
+      <div class="pbadge pbadge-a">◈ Per-transaction</div>
+      <h3>Per-Trade Cover</h3>
+      <div class="prod-subtitle">Slippage &amp; execution coverage</div>
+      <div class="prod-limit-row">
+        <div class="prod-limit prod-limit-a">$5,000</div>
+      </div>
+      <div class="prod-per">Max payout · per trade · sub-second settle</div>
+      <p class="prod-desc">Activates on every transaction. Price oracles record the asset price at submission and at execution — if the adverse delta exceeds the configured threshold, the stablecoin payout is engineered to settle within the same block. Built for HFT and market-making agents.</p>
+      <ul class="prod-feats feat-a">
+        <li><span class="ic">→</span>Transaction signature serves as a unique policy identifier</li>
+        <li><span class="ic">→</span>Oracle-driven price delta — submission timestamp vs. execution</li>
+        <li><span class="ic">→</span>Configurable slippage threshold between 0.5% and 5%</li>
+        <li><span class="ic">→</span>No waiting period — coverage active on the first trade</li>
+      </ul>
+      <div class="prod-foot">
+        <div class="prod-price">Contact<span style="color:var(--ink-muted);font-weight:400"> us</span><span class="sm">For pricing details</span></div>
+        <a href="#pricing" class="prod-cta">Details<span class="a">→</span></a>
+      </div>
+    </div>
+
+    <div class="prod-card" data-p="dat">
+      <div class="pbadge pbadge-p">🔒 Hybrid verified</div>
+      <h3>Data Breach</h3>
+      <div class="prod-subtitle">PII &amp; proprietary data coverage</div>
+      <div class="prod-limit-row">
+        <div class="prod-limit prod-limit-p">$30,000</div>
+      </div>
+      <div class="prod-per">Coverage limit · per incident · 72-hour settlement</div>
+      <p class="prod-desc">Protects agents against leaked, mishandled, or improperly transmitted protected data. Policyholders submit cryptographically signed execution logs as evidence. A staked reviewer panel cross-references the on-chain log commitment, with target settlement within 72 hours.</p>
+      <ul class="prod-feats feat-p">
+        <li><span class="ic">→</span>SHA-256 log hash committed on-chain at policy inception</li>
+        <li><span class="ic">→</span>Five-reviewer staked panel — minority voters are slashed</li>
+        <li><span class="ic">→</span>Covers PII, financial data, and proprietary information</li>
+        <li><span class="ic">→</span>Regulatory fine coverage included within the policy limit</li>
+      </ul>
+      <div class="prod-foot">
+        <div class="prod-price">Contact<span style="color:var(--ink-muted);font-weight:400"> us</span><span class="sm">For pricing details</span></div>
+        <a href="#pricing" class="prod-cta">Details<span class="a">→</span></a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════ ARCHITECTURE ═══════════════════════════ -->
+<section class="sec-full" id="architecture">
+  <div class="inn">
+    <div class="sec-head reveal">
+      <div class="eyebrow">02 — Protocol architecture</div>
+      <h2>From policy inception to payout, <em>every step is on-chain.</em></h2>
+      <p class="sec-sub">No intermediaries. No manual review for parametric triggers. No counterparty risk. The same on-chain infrastructure that settles DeFi trades settles your coverage.</p>
+    </div>
+    <div class="arch-wrap reveal">
+      <div class="arch-flow">
+        <div class="arch-step">
+          <div class="arch-head">
+            <span class="arch-n">01</span>
+            <span class="arch-dur">~30s</span>
+          </div>
+          <div class="arch-title">Register agent</div>
+          <div class="arch-desc">Connect a Web3 wallet. Register the AI agent's wallet address. Select coverage type. For data breach policies, the log hash is committed on-chain at inception.</div>
+          <div class="arch-meta">
+            <div class="arch-meta-r"><span class="k">Layer</span><span class="v">Smart contract</span></div>
+            <div class="arch-meta-r"><span class="k">Tx cost</span><span class="v">Sub-cent</span></div>
+          </div>
+        </div>
+        <div class="arch-step">
+          <div class="arch-head">
+            <span class="arch-n">02</span>
+            <span class="arch-dur">Instant</span>
+          </div>
+          <div class="arch-title">Premium in stablecoin</div>
+          <div class="arch-desc">Monthly or per-trade premiums are deducted in stablecoin. A 10% co-insurance deposit is locked in escrow. Risk-based pricing is computed on-chain from agent autonomy and capital under management.</div>
+          <div class="arch-meta">
+            <div class="arch-meta-r"><span class="k">Settlement</span><span class="v">Stablecoin</span></div>
+            <div class="arch-meta-r"><span class="k">Escrow</span><span class="v">10% co-insurance</span></div>
+          </div>
+        </div>
+        <div class="arch-step">
+          <div class="arch-head">
+            <span class="arch-n">03</span>
+            <span class="arch-dur">Continuous</span>
+          </div>
+          <div class="arch-title">Oracle monitoring</div>
+          <div class="arch-desc">Wallet oracles read agent balances on 60-second intervals. Per-trade agents are monitored on every transaction. Data breach agents produce signed operational logs throughout the policy period.</div>
+          <div class="arch-meta">
+            <div class="arch-meta-r"><span class="k">Price feed</span><span class="v">Decentralized</span></div>
+            <div class="arch-meta-r"><span class="k">Wallet feed</span><span class="v">On-chain oracle</span></div>
+          </div>
+        </div>
+        <div class="arch-step">
+          <div class="arch-head">
+            <span class="arch-n">04</span>
+            <span class="arch-dur">Target: &lt;60s</span>
+          </div>
+          <div class="arch-title">Parametric payout</div>
+          <div class="arch-desc">Financial loss and per-trade payouts are designed to trigger automatically on oracle confirmation. For data breach: evidence is submitted, staked reviewers vote, and stablecoin transfers on 3-of-5 approval within 72 hours.</div>
+          <div class="arch-meta">
+            <div class="arch-meta-r"><span class="k">Trigger</span><span class="v">Automatic</span></div>
+            <div class="arch-meta-r"><span class="k">Payout</span><span class="v">Stablecoin to wallet</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ INFRASTRUCTURE ═══════════════════════════ -->
+<section class="sec" id="infrastructure">
+  <div class="sec-head reveal">
+    <div class="eyebrow">03 — Technical infrastructure</div>
+    <h2>Institutional-grade primitives, <em>composable by design.</em></h2>
+    <p class="sec-sub">Regore is being built as a chain-agnostic on-chain protocol with dual-oracle verification, a stablecoin-denominated reserve pool, and a staked review panel for hybrid-settled policies. We are evaluating leading high-performance blockchains (including Ethereum, Solana, Sui, and Aptos) to host the production deployment.</p>
+  </div>
+  <div class="infra-grid">
+    <div class="infra-left reveal-stagger">
+      <div class="infra-feat">
+        <div class="infra-feat-head">
+          <div class="infra-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+          </div>
+          <h4>Dual-oracle verification</h4>
+        </div>
+        <p>The protocol pairs a sub-second decentralized price feed (e.g. Pyth, Chainlink, or chain-native equivalents) with an on-chain wallet-monitoring oracle (e.g. Switchboard or comparable services). Every parametric trigger is engineered to be independently verified by two oracle sources before payout — eliminating single-source manipulation risk.</p>
+      </div>
+      <div class="infra-feat">
+        <div class="infra-feat-head">
+          <div class="infra-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+          </div>
+          <h4>Stablecoin reserve pool · 1.5× target ratio</h4>
+        </div>
+        <p>The protocol is designed to maintain reserve backing of 1.5× outstanding coverage, funded by external stablecoin liquidity providers. A target LP yield is structured from premium flow, with a seven-day unbonding period. Specific yield sources and partner integrations remain under active design.</p>
+      </div>
+      <div class="infra-feat">
+        <div class="infra-feat-head">
+          <div class="infra-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h4>Reinsurance backstop · under exploration</h4>
+        </div>
+        <p>The protocol design includes a parametric reinsurance tranche above protocol reserves, intended to absorb catastrophic drawdowns. Conversations with prospective reinsurance partners are ongoing. No commercial agreement is in place at this time.</p>
+      </div>
+      <div class="infra-feat">
+        <div class="infra-feat-head">
+          <div class="infra-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h4>Staked reviewer panel</h4>
+        </div>
+        <p>Data breach claims are settled by a panel of five independently staked reviewers. Approvals require 3-of-5 consensus. Reviewers voting in the minority on clear cases are slashed — aligning incentives with protocol integrity rather than individual claim outcomes.</p>
+      </div>
+    </div>
+
+    <div class="infra-right reveal">
+      <div class="infra-code-head">
+        <div class="infra-code-dots"><span></span><span></span><span></span></div>
+        <div class="infra-code-title">contracts / Policy.sol</div>
+      </div>
+      <pre class="infra-code"><span class="c">// Parametric financial loss trigger</span>
+<span class="k">function</span> <span class="f">settleClaim</span>(
+    <span class="n">PolicyId</span> policyId,
+    <span class="n">OracleProof</span> proof
+) <span class="k">external</span> <span class="k">returns</span> (<span class="k">bool</span>) {
+    <span class="n">Policy</span> <span class="k">storage</span> p = policies[policyId];
+
+    <span class="c">// Read verified price &amp; balance</span>
+    <span class="k">uint256</span> price = <span class="f">getOraclePrice</span>(proof);
+    <span class="k">uint256</span> balance = <span class="f">readWallet</span>(
+        p.agentWallet
+    );
+
+    <span class="c">// Compute drawdown vs. threshold</span>
+    <span class="k">uint256</span> loss = p.baseline
+        - (balance * price);
+
+    <span class="k">require</span>(
+        loss &gt;= p.threshold,
+        <span class="s">"NoTrigger"</span>
+    );
+
+    <span class="c">// Transfer stablecoin payout</span>
+    <span class="f">stablecoin.transfer</span>(
+        p.agentWallet,
+        loss &lt; p.limit ? loss : p.limit
+    );
+
+    <span class="f">emit ClaimSettled</span>(
+        policyId,
+        loss,
+        <span class="f">block.timestamp</span>
+    );
+
+    <span class="k">return true</span>;
+}</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ DESIGN SPECS ═══════════════════════════ -->
+<section class="sec-full" id="metrics" style="background:linear-gradient(180deg,rgba(8,11,21,.4),transparent)">
+  <div class="inn">
+    <div class="sec-head reveal">
+      <div class="eyebrow">04 — Protocol design</div>
+      <h2>Design parameters, <em>published upfront.</em></h2>
+      <p class="sec-sub">Regore is pre-launch. Rather than cite performance numbers we don't yet have, these are the published protocol design specifications — the parameters encoded into the testnet program and documented for external review.</p>
+    </div>
+    <div class="metrics-grid reveal-stagger">
+      <div class="metric">
+        <div class="metric-label">Financial Loss · Coverage limit</div>
+        <div class="metric-val">$30<span style="font-size:.6em;color:var(--ink-muted)">K</span></div>
+        <div class="metric-delta"><span style="color:var(--ink-dim)">Per session · design spec</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Per-Trade · Max payout</div>
+        <div class="metric-val">$5<span style="font-size:.6em;color:var(--ink-muted)">K</span></div>
+        <div class="metric-delta"><span style="color:var(--ink-dim)">Per transaction · design spec</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Data Breach · Coverage limit</div>
+        <div class="metric-val">$30<span style="font-size:.6em;color:var(--ink-muted)">K</span></div>
+        <div class="metric-delta"><span style="color:var(--ink-dim)">Per incident · design spec</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Target reserve ratio</div>
+        <div class="metric-val g">1.5<span style="font-size:.6em;color:var(--ink-muted)">×</span></div>
+        <div class="metric-delta"><span style="color:var(--ink-dim)">Reserve to coverage</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Co-insurance escrow</div>
+        <div class="metric-val">10<span style="font-size:.6em;color:var(--ink-muted)">%</span></div>
+        <div class="metric-delta"><span style="color:var(--ink-dim)">Of coverage limit · refundable</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Oracle monitoring cycle</div>
+        <div class="metric-val">60<span style="font-size:.6em;color:var(--ink-muted)">s</span></div>
+        <div class="metric-delta"><span style="color:var(--ink-dim)">Wallet feed interval</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Hybrid review panel</div>
+        <div class="metric-val">3<span style="font-size:.6em;color:var(--ink-muted)"> / 5</span></div>
+        <div class="metric-delta"><span style="color:var(--ink-dim)">Staked reviewer consensus</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Data Breach · Settlement SLA</div>
+        <div class="metric-val">72<span style="font-size:.6em;color:var(--ink-muted)">h</span></div>
+        <div class="metric-delta"><span style="color:var(--ink-dim)">Target review window</span></div>
+      </div>
+    </div>
+
+    <!-- Transparency footnote -->
+    <div style="margin-top:28px;padding:20px 24px;border:1px solid var(--line-2);border-radius:var(--r-md);background:rgba(8,11,21,.4);display:flex;align-items:flex-start;gap:14px;font-family:var(--mono);font-size:11.5px;color:var(--ink-dim);line-height:1.65;letter-spacing:.02em">
+      <div style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:rgba(75,123,255,.08);border:1px solid rgba(75,123,255,.25);display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:700;font-size:11px">i</div>
+      <div><span style="color:var(--ink);font-weight:500">Pre-launch transparency:</span> these are design parameters, not performance metrics. The protocol is currently on testnet. Live TVL, policy counts, claims paid, and LP yields will be published once the protocol is active on mainnet.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PRICING ═══════════════════════════ -->
+<section class="sec" id="pricing">
+  <div class="sec-head reveal">
+    <div class="eyebrow">05 — Pricing</div>
+    <h2>Transparent, <em>risk-based pricing.</em></h2>
+    <p class="sec-sub">Premiums are designed to be computed on-chain from each agent's risk profile — autonomy level, capital under management, and on-chain behavior. Pricing is tailored to each design partner; reach out to discuss coverage that fits your operation.</p>
+  </div>
+  <div class="price-grid reveal-stagger">
+
+    <div class="price-c">
+      <div class="p-tier">Financial Loss</div>
+      <div class="p-tier-desc">Wallet-level drawdown coverage for session-bound or continuous operation.</div>
+      <div class="p-amt-wrap">
+        <div class="p-amt g" style="font-size:clamp(28px,3.2vw,42px)">Contact us</div>
+      </div>
+      <div class="p-period">For pricing details · up to $30K coverage</div>
+      <ul class="p-list">
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Fully parametric — no claim filing required</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Dual-oracle verification (price + wallet feed)</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Automatic stablecoin settlement on trigger</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Session or continuous coverage modes</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Cancel anytime — escrow returned in full</li>
+      </ul>
+      <a href="#access" onclick="event.preventDefault();document.getElementById('access').scrollIntoView({behavior:'smooth'});" class="pbtn pb-out">Request financial coverage →</a>
+    </div>
+
+    <div class="price-c">
+      <div class="p-tier">Per-Trade Cover</div>
+      <div class="p-tier-desc">Per-transaction slippage coverage for HFT and market-making agents.</div>
+      <div class="p-amt-wrap">
+        <div class="p-amt a" style="font-size:clamp(28px,3.2vw,42px)">Contact us</div>
+      </div>
+      <div class="p-period">For pricing details · $5K max per trade</div>
+      <ul class="p-list">
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="#F0B050" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Coverage on every transaction — no selection required</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="#F0B050" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Oracle-driven price delta — submission vs. execution</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="#F0B050" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Micro-premium deducted automatically</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="#F0B050" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Configurable slippage threshold (0.5–5%)</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="#F0B050" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>No monthly minimum commitment</li>
+      </ul>
+      <a href="#access" onclick="event.preventDefault();document.getElementById('access').scrollIntoView({behavior:'smooth'});" class="pbtn" style="border:1px solid rgba(240,176,80,.3);color:var(--amber);background:rgba(240,176,80,.04)">Request per-trade coverage →</a>
+    </div>
+
+    <div class="price-c feat">
+      <div class="pop-flag">Most popular</div>
+      <div class="p-tier">Full Coverage Bundle</div>
+      <div class="p-tier-desc">Financial loss and data breach coverage, bundled for comprehensive agent protection.</div>
+      <div class="p-amt-wrap">
+        <div class="p-amt f" style="font-size:clamp(28px,3.2vw,42px)">Contact us</div>
+      </div>
+      <div class="p-period">For pricing details · $30K each policy</div>
+      <ul class="p-list">
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Everything in Financial Loss coverage</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Data Breach coverage up to $30K</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>On-chain log hash commitment</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>72-hour staked reviewer settlement</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>DAO governance escalation layer</li>
+      </ul>
+      <a href="#access" onclick="event.preventDefault();document.getElementById('access').scrollIntoView({behavior:'smooth'});" class="pbtn pb-fill">Request full coverage →</a>
+    </div>
+
+  </div>
+
+  <!-- Early access / Design partners / Investors — anchor for Request Access CTAs -->
+  <div class="reveal" id="access" style="margin-top:32px;padding:40px 40px;border:1px solid var(--line-2);border-radius:var(--r-md);background:linear-gradient(135deg,rgba(14,20,40,.75),rgba(8,11,21,.5));position:relative;overflow:hidden">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 90% 50%,rgba(75,123,255,.06),transparent 60%);pointer-events:none"></div>
+    <div style="position:relative;display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center">
+      <div>
+        <div class="eyebrow" style="margin-bottom:14px">Pre-launch · Raising</div>
+        <div style="font-family:var(--serif);font-size:28px;font-weight:500;margin-bottom:14px;letter-spacing:-.02em;line-height:1.15">Building toward mainnet.<br/><em style="font-style:italic;font-weight:400;color:var(--ink-dim)">Open to design partners and investors.</em></div>
+        <div style="font-size:14.5px;color:var(--ink-dim);font-weight:300;line-height:1.65;max-width:540px">We're currently live on testnet, working toward mainnet, and partnering with a small group of design partners — teams operating autonomous agents who help us stress-test coverage parameters before launch. We're also actively in conversation with investors aligned on on-chain risk infrastructure.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <a href="mailto:partners@regore.xyz?subject=Design%20Partner%20Interest" class="pbtn pb-fill" style="text-decoration:none">Become a design partner →</a>
+        <a href="mailto:investors@regore.xyz?subject=Investor%20Inquiry" class="pbtn pb-out" style="text-decoration:none">Investor inquiries →</a>
+        <a href="mailto:hello@regore.xyz" class="pbtn pb-out" style="text-decoration:none;border-color:var(--line-2)">General contact</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FAQ ═══════════════════════════ -->
+<section class="sec-full" id="faq" style="border-top:1px solid var(--line)">
+  <div class="inn">
+    <div class="faq-grid">
+      <div class="faq-side reveal">
+        <div class="eyebrow">06 — FAQ</div>
+        <h2>Questions, <em>answered.</em></h2>
+        <p>Common questions about the protocol, coverage triggers, payout mechanics, and LP participation. For anything not covered here, reach out directly.</p>
+        <a href="mailto:hello@regore.xyz" class="faq-contact">hello@regore.xyz →</a>
+      </div>
+      <div class="faq-list reveal">
+        <div class="faq-item">
+          <div class="faq-q" onclick="faq(this)">What is Regore's current status? <span class="faq-ic">+</span></div>
+          <div class="faq-a">Regore is pre-launch. The protocol is currently running on testnet, with core contracts implementing the coverage mechanics described on this site. We're actively raising a round, onboarding design partners, and finalizing our chain-and-deployment roadmap. Coverage limits, reserve ratios, and premiums shown here are design parameters — not live performance claims.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="faq(this)">Which blockchain will Regore launch on? <span class="faq-ic">+</span></div>
+          <div class="faq-a">Regore is being built chain-agnostically, with our production deployment under active evaluation across several leading high-performance blockchains — including Ethereum, Solana, Sui, and Aptos. Our selection criteria prioritize settlement speed, oracle availability, stablecoin liquidity depth, and developer ecosystem. We will publicly announce the production network ahead of mainnet launch.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="faq(this)">Is Regore licensed insurance? <span class="faq-ic">+</span></div>
+          <div class="faq-a">Regore is being built as a decentralized risk-sharing protocol, not a licensed insurance company. Coverage, once live, is intended to be provided through on-chain smart contracts governed by the protocol DAO — structurally similar to Nexus Mutual's discretionary mutual model. Users should review how their jurisdiction treats DeFi risk-sharing protocols before participating.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="faq(this)">How does financial loss payout work? <span class="faq-ic">+</span></div>
+          <div class="faq-a">When the agent's wallet balance drops below the threshold set at policy inception, an on-chain wallet oracle is designed to detect the loss, a price oracle calculates the USD-denominated amount, and the smart contract transfers stablecoin to the wallet automatically. No claim filing, no human review. The protocol's target settlement is within one oracle cycle; final on-chain performance will be published after mainnet launch.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="faq(this)">How does per-trade coverage work? <span class="faq-ic">+</span></div>
+          <div class="faq-a">Every time the agent submits a transaction, the policy contract is designed to record the oracle-reported price of the asset at submission. After execution, the contract compares the actual execution price to submission. If the negative delta (slippage plus adverse movement) exceeds the configured threshold, a stablecoin payout triggers automatically — capped at $5,000. A small per-transaction micro-premium is deducted from a pre-funded stablecoin deposit; reach out for current pricing tailored to your trade volume.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="faq(this)">What is the 30-day waiting period? <span class="faq-ic">+</span></div>
+          <div class="faq-a">New Financial Loss policies cannot file claims for the first 30 days, preventing coverage purchases after a known compromise event. Per-Trade Cover has no waiting period — it is active on the first trade. Data Breach policies require 30 days of pre-existing signed operation logs before coverage is issued.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="faq(this)">What is the co-insurance escrow? <span class="faq-ic">+</span></div>
+          <div class="faq-a">Policyholders lock 10% of their coverage limit (e.g. $3,000 on a $30K policy) at purchase. This amount is returned in full on cancellation or after an approved claim. It is forfeited entirely on fraudulent claims, and 50% on claims rejected for insufficient evidence. This creates real skin in the game with zero additional cost to honest claimants.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="faq(this)">Can I earn yield as a liquidity provider? <span class="faq-ic">+</span></div>
+          <div class="faq-a">The protocol design accepts stablecoin deposits into the reserve pool from external LPs. Premium flow is designed to route 15% to a surplus fund first, with the remainder distributed pro-rata to LPs. Specific yield sources, partner integrations, and target APY will be disclosed once mainnet launch parameters are finalized. A seven-day unbonding period is part of the current design.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="faq(this)">Is there a reinsurance backstop? <span class="faq-ic">+</span></div>
+          <div class="faq-a">The protocol design includes a parametric reinsurance tranche above native reserves, intended to absorb catastrophic drawdowns. Regore is actively exploring partnerships with crypto-native reinsurance providers. No commercial reinsurance agreement is in place at this time — we will publicly disclose partners as agreements are executed.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ CTA BAND ═══════════════════════════ -->
+<section class="cta-band">
+  <div class="cta-inner reveal">
+    <h2>The coverage layer for<br/>autonomous agents. <em>On-chain.</em></h2>
+    <p>Regore is pre-launch. If you're operating autonomous agents on-chain — or building the infrastructure they rely on — we'd like to talk. Design partners help shape the protocol before mainnet.</p>
+    <div class="cta-row">
+      <a href="mailto:partners@regore.xyz?subject=Design%20Partner%20Interest" class="cta-p" style="text-decoration:none">Request early access<span class="arrow">→</span></a>
+      <a class="cta-s" href="#faq">Read FAQ</a>
+    </div>
+    <div class="cta-legal">Testnet · Pre-launch · Building toward mainnet</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
+<footer>
+  <div class="ft-grid">
+    <div class="ft-brand-col">
+      <div class="ft-brand">
+        <img id="footerLogo" alt="Regore"/>
+        Regore
+      </div>
+      <div class="ft-tag">Pre-launch parametric insurance infrastructure for autonomous AI agents. Engineered for oracle-verified, stablecoin-denominated coverage on a high-performance blockchain. Currently on testnet.</div>
+      <div class="ft-badges">
+        <span class="ft-badge">Testnet</span>
+        <span class="ft-badge">Chain-agnostic</span>
+        <span class="ft-badge">Stablecoin-native</span>
+        <span class="ft-badge">Open-source (planned)</span>
+      </div>
+      <div class="ft-disc">Regore is a pre-launch decentralized risk-sharing protocol in active development — not a licensed insurance company. Coverage products described on this site are design specifications, not yet live. No policies are being sold. Coverage limits, premiums, reserve ratios, and settlement times are protocol design parameters and may change before mainnet launch. This site does not constitute an offer of insurance, financial advice, or legal advice, and is not a solicitation of securities. Not available where prohibited.</div>
+    </div>
+    <div class="ft-col">
+      <h5>Coverage</h5>
+      <ul class="ft-links">
+        <li><a href="#products">Financial Loss</a></li>
+        <li><a href="#products">Per-Trade Cover</a></li>
+        <li><a href="#products">Data Breach</a></li>
+        <li><a href="#pricing">Indicative pricing</a></li>
+        <li><a href="#access">Early access</a></li>
+      </ul>
+    </div>
+    <div class="ft-col">
+      <h5>Protocol</h5>
+      <ul class="ft-links">
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#metrics">Design parameters</a></li>
+        <li><a href="#products">Coverage design</a></li>
+        <li><a href="mailto:hello@regore.xyz">Documentation (coming)</a></li>
+        <li><a href="mailto:hello@regore.xyz">Governance (planned)</a></li>
+      </ul>
+    </div>
+    <div class="ft-col">
+      <h5>Resources</h5>
+      <ul class="ft-links">
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="#" onclick="openWhitepaper(event)">Whitepaper</a></li>
+        <li><a href="mailto:press@regore.xyz">Press inquiries</a></li>
+        <li><a href="mailto:hello@regore.xyz">Brand kit (request)</a></li>
+      </ul>
+    </div>
+    <div class="ft-col">
+      <h5>Company</h5>
+      <ul class="ft-links">
+        <li><a href="mailto:hello@regore.xyz">Contact</a></li>
+        <li><a href="mailto:partners@regore.xyz">Design partners</a></li>
+        <li><a href="mailto:investors@regore.xyz">Investors</a></li>
+        <li><a href="#access">Get involved</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="ft-bot">
+    <div class="ft-copy">© 2026 Regore Protocol · All rights reserved</div>
+    <div class="ft-socials">
+      <a href="https://twitter.com/regore_io" target="_blank" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+      <a href="mailto:hello@regore.xyz" aria-label="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════
+// LOGO (placeholder data URI — replace with your asset)
+// ═══════════════════════════════════════════════
+const LOGO_URI='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cG9seWdvbiBwb2ludHM9IjMyLDQgNTYsMjAgMzIsMzYgOCwyMCIgZmlsbD0iI0VFRUVGNCIvPjxwb2x5Z29uIHBvaW50cz0iMzIsMzYgNTYsMjAgNTYsNDQgMzIsNjAiIGZpbGw9InJnYmEoMjM4LDIzOCwyNDQsMC40NSkiLz48cG9seWdvbiBwb2ludHM9IjMyLDM2IDgsMjAgOCw0NCAzMiw2MCIgZmlsbD0icmdiYSgyMzgsMjM4LDI0NCwwLjI1KSIvPjxwb2x5Z29uIHBvaW50cz0iMzIsMzYgNTYsNDQgMzIsNjAgOCw0NCIgZmlsbD0icmdiYSg3NSwxMjMsMjU1LDAuNikiLz48L3N2Zz4=';
+['phLogo','footerLogo'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el)el.src=LOGO_URI;
+});
+
+// ═══════════════════════════════════════════════
+// WALLET CONNECT MODAL
+// Wallet detection is provider-agnostic — we look for any
+// EIP-1193 (Ethereum) or window.solana provider, and fall
+// back to demo mode for the pitch flow.
+// ═══════════════════════════════════════════════
+function launchApp(e){
+  if(e)e.preventDefault();
+  const saved=sessionStorage.getItem('regore_wallet');
+  if(saved){window.location.href='regore-app.html';return;}
+  openPhModal();
+}
+function openPhModal(){document.getElementById('phModal').classList.add('open')}
+function closePhModal(){document.getElementById('phModal').classList.remove('open')}
+
+async function connectWallet(){
+  const btn=document.getElementById('phBtn'),
+        sub=document.getElementById('phBtnSub'),
+        err=document.getElementById('phErr'),
+        arrow=document.getElementById('phArrow');
+
+  // Try EVM first, then Solana, then demo fallback
+  const evmProvider = window.ethereum;
+  const solProvider = window.phantom?.solana ?? window.solana;
+  const provider = evmProvider || solProvider;
+
+  if(!provider){
+    document.getElementById('phNoWallet').style.display='block';
+    showPhErr('No compatible wallet detected.');
+    return;
+  }
+
+  btn.classList.add('loading');
+  sub.textContent='Waiting for approval…';
+  arrow.textContent='⏳';
+  err.classList.remove('show');
+
+  try{
+    let pubkey;
+    if(evmProvider && evmProvider.request){
+      const accounts = await evmProvider.request({method:'eth_requestAccounts'});
+      pubkey = accounts[0];
+    } else if(solProvider){
+      const resp = await solProvider.connect();
+      pubkey = resp.publicKey.toString();
+    }
+    const short = pubkey.slice(0,6)+'…'+pubkey.slice(-4);
+    sessionStorage.setItem('regore_wallet',pubkey);
+    sessionStorage.setItem('regore_wallet_short',short);
+    sub.textContent='Connected. Redirecting…';
+    arrow.textContent='✓';
+    setTimeout(()=>{window.location.href='regore-app.html';},700);
+  }catch(e){
+    btn.classList.remove('loading');
+    sub.textContent='Approve in your wallet';
+    arrow.textContent='→';
+    if(e.code===4001 || e.code===-32002){
+      showPhErr('Connection rejected.');
+    }else{
+      // Demo fallback
+      sub.textContent='Demo mode…';
+      arrow.textContent='⏳';
+      sessionStorage.setItem('regore_wallet','DEMO');
+      sessionStorage.setItem('regore_wallet_short','0xDe…m0Qr');
+      setTimeout(()=>{window.location.href='regore-app.html';},800);
+    }
+  }
+}
+function showPhErr(msg){
+  const el=document.getElementById('phErr');
+  el.textContent=msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),4000);
+}
+
+// ═══════════════════════════════════════════════
+// WHITEPAPER MODAL
+// Full-screen reading view with scroll progress bar
+// ═══════════════════════════════════════════════
+function openWhitepaper(e){
+  if(e)e.preventDefault();
+  const m=document.getElementById('wpModal');
+  m.classList.add('open');
+  document.body.classList.add('wp-open');
+  // Reset scroll position to top each time it opens
+  m.scrollTop=0;
+  const body=document.getElementById('wpBody');
+  if(body)body.parentElement.scrollTop=0;
+  updateWpProgress();
+}
+function closeWhitepaper(){
+  const m=document.getElementById('wpModal');
+  m.classList.remove('open');
+  document.body.classList.remove('wp-open');
+}
+// Update scroll progress bar based on backdrop scroll position
+function updateWpProgress(){
+  const m=document.getElementById('wpModal');
+  const bar=document.getElementById('wpProgressBar');
+  if(!m||!bar)return;
+  const max=m.scrollHeight-m.clientHeight;
+  const pct=max>0?(m.scrollTop/max)*100:0;
+  bar.style.width=pct+'%';
+}
+// Wire up scroll listener on the backdrop (which is the scroll container)
+document.getElementById('wpModal').addEventListener('scroll',updateWpProgress,{passive:true});
+// ESC closes the modal
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&document.getElementById('wpModal').classList.contains('open')){
+    closeWhitepaper();
+  }
+});
+
+// ═══════════════════════════════════════════════
+// MOBILE MENU
+// ═══════════════════════════════════════════════
+function toggleMenu(){
+  const m=document.getElementById('mobMenu'),h=document.getElementById('hambBtn');
+  m.classList.toggle('open');
+  h.classList.toggle('open');
+  document.body.style.overflow=m.classList.contains('open')?'hidden':'';
+}
+window.addEventListener('scroll',()=>{
+  const m=document.getElementById('mobMenu');
+  if(m&&m.classList.contains('open')){
+    m.classList.remove('open');
+    document.getElementById('hambBtn').classList.remove('open');
+    document.body.style.overflow='';
+  }
+  // Nav shadow on scroll
+  const nav=document.getElementById('mainNav');
+  if(nav){
+    if(window.scrollY>20)nav.classList.add('scrolled');
+    else nav.classList.remove('scrolled');
+  }
+},{passive:true});
+
+// ═══════════════════════════════════════════════
+// FAQ ACCORDION
+// ═══════════════════════════════════════════════
+function faq(el){
+  const i=el.parentElement,
+        o=i.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(x=>x.classList.remove('open'));
+  if(!o)i.classList.add('open');
+}
+
+// ═══════════════════════════════════════════════
+// SCROLL REVEAL
+// ═══════════════════════════════════════════════
+const ro=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){
+    e.target.classList.add('in');
+    ro.unobserve(e.target);
+  }
+}),{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal,.reveal-stagger').forEach(el=>ro.observe(el));
+
+// ═══════════════════════════════════════════════
+// THREE.JS — INSTITUTIONAL LATTICE BACKGROUND
+// Refined geometric scene with subtle motion
+// ═══════════════════════════════════════════════
+(function(){
+  const cv=document.getElementById('bgc');
+  const rr=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+  rr.setPixelRatio(Math.min(devicePixelRatio,2));
+  rr.setClearColor(0x05070d,1);
+
+  const sc=new THREE.Scene();
+  const cm=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,200);
+  cm.position.z=30;
+
+  function rsz(){
+    rr.setSize(innerWidth,innerHeight);
+    cm.aspect=innerWidth/innerHeight;
+    cm.updateProjectionMatrix();
+  }
+  rsz();
+  addEventListener('resize',rsz,{passive:true});
+
+  // Palette
+  const GREEN=new THREE.Color(0x4B7BFF),   // brand electric blue
+        PURPLE=new THREE.Color(0x2B5FD9),  // deeper brand blue
+        BLUE=new THREE.Color(0x7EB0FF);    // bright blue highlight
+
+  // Wireframe geometric forms
+  function ico(r,d,c,x,y,z,s,op){
+    const m=new THREE.Mesh(
+      new THREE.IcosahedronGeometry(r,d),
+      new THREE.MeshBasicMaterial({
+        color:c,
+        wireframe:true,
+        transparent:true,
+        opacity:op
+      })
+    );
+    m.position.set(x,y,z);
+    m.userData.s=s;
+    sc.add(m);
+    return m;
+  }
+
+  // Central hero form — large, slowly rotating
+  const central=ico(8,1,GREEN,0,0,-2,{x:.0006,y:.0008,z:.0004},.09);
+
+  // Supporting forms — offset, smaller
+  const forms=[
+    ico(4,0,PURPLE,-20,10,-15,{x:.0011,y:.0007,z:.0008},.07),
+    ico(3.5,0,BLUE,22,-8,-12,{x:.0008,y:.0013,z:.0006},.07),
+    ico(2.2,0,GREEN,14,14,-8,{x:.0016,y:.0011,z:.0009},.06),
+    ico(1.8,0,PURPLE,-16,-12,-10,{x:.0014,y:.0017,z:.0007},.06),
+    ico(1.4,0,BLUE,-8,18,-20,{x:.0018,y:.001,z:.0012},.06),
+    ico(2.8,0,GREEN,28,4,-18,{x:.0009,y:.0014,z:.001},.055),
+    ico(2.0,0,PURPLE,-24,16,-14,{x:.0012,y:.0008,z:.0015},.055),
+  ];
+
+  // Orbital rings
+  const ringMat=(c,op)=>new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:op});
+  const r1=new THREE.Mesh(new THREE.TorusGeometry(13,.04,4,120),ringMat(GREEN,.14));
+  r1.rotation.x=Math.PI/3.5;
+  sc.add(r1);
+
+  const r2=new THREE.Mesh(new THREE.TorusGeometry(10,.03,4,100),ringMat(PURPLE,.1));
+  r2.rotation.x=-Math.PI/4;
+  r2.rotation.y=Math.PI/6;
+  sc.add(r2);
+
+  const r3=new THREE.Mesh(new THREE.TorusGeometry(16,.025,4,140),ringMat(BLUE,.08));
+  r3.rotation.x=Math.PI/5;
+  r3.rotation.z=Math.PI/7;
+  sc.add(r3);
+
+  // Particle field — starfield depth
+  const PN=2200;
+  const pp=new Float32Array(PN*3),pc=new Float32Array(PN*3);
+  const colors=[GREEN,PURPLE,BLUE];
+  for(let i=0;i<PN;i++){
+    pp[i*3]=(Math.random()-.5)*180;
+    pp[i*3+1]=(Math.random()-.5)*140;
+    pp[i*3+2]=(Math.random()-.5)*100-10;
+    const c=colors[~~(Math.random()*3)];
+    pc[i*3]=c.r;pc[i*3+1]=c.g;pc[i*3+2]=c.b;
+  }
+  const pg=new THREE.BufferGeometry();
+  pg.setAttribute('position',new THREE.BufferAttribute(pp,3));
+  pg.setAttribute('color',new THREE.BufferAttribute(pc,3));
+  const points=new THREE.Points(pg,new THREE.PointsMaterial({
+    size:.12,
+    vertexColors:true,
+    transparent:true,
+    opacity:.32,
+    sizeAttenuation:true
+  }));
+  sc.add(points);
+
+  // Connecting lines between central and satellite forms
+  const lineMat=new THREE.LineBasicMaterial({color:GREEN,transparent:true,opacity:.14});
+  forms.forEach(f=>{
+    const geo=new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0,0,-2),
+      f.position.clone()
+    ]);
+    sc.add(new THREE.Line(geo,lineMat));
+  });
+
+  // Parallax from mouse position
+  let tx=0,ty=0,cx=0,cy=0,t=0;
+  addEventListener('mousemove',e=>{
+    tx=(e.clientX/innerWidth-.5)*2;
+    ty=(e.clientY/innerHeight-.5)*2;
+  },{passive:true});
+
+  // Scroll-based camera drift
+  let scrollY=0;
+  addEventListener('scroll',()=>{scrollY=window.scrollY;},{passive:true});
+
+  (function loop(){
+    requestAnimationFrame(loop);
+    t+=.01;
+
+    // Smooth camera tracking
+    cx+=(tx*1.6-cx)*.02;
+    cy+=(-ty*1.2-cy)*.02;
+    cm.position.x=cx;
+    cm.position.y=cy - scrollY*.002;
+    cm.lookAt(0,0 - scrollY*.001,0);
+
+    // Rotate forms
+    central.rotation.x+=central.userData.s.x;
+    central.rotation.y+=central.userData.s.y;
+    central.rotation.z+=central.userData.s.z;
+    central.material.opacity=.04+Math.sin(t*.7)*.012;
+
+    forms.forEach(m=>{
+      m.rotation.x+=m.userData.s.x;
+      m.rotation.y+=m.userData.s.y;
+      m.rotation.z+=m.userData.s.z;
+    });
+
+    r1.rotation.y+=.0025;
+    r1.rotation.z+=.0008;
+    r2.rotation.x+=.0018;
+    r2.rotation.z+=.0035;
+    r3.rotation.y+=.0012;
+    r3.rotation.x+=.0004;
+
+    // Particle gentle drift
+    points.rotation.y+=.0003;
+
+    rr.render(sc,cm);
+  })();
+})();
+</script>
+
+<script>
+/* ═══════════════════════════════════════════════
+   WOW LAYER JS — MAGNETIC CURSOR, SCRAMBLE TEXT,
+   TILT CARDS, PARTICLE BURST, COUNTER ANIMATION
+   ═══════════════════════════════════════════════ */
+(function(){
+  'use strict';
+
+  /* ── Magnetic cursor ── */
+  const dot = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  let mx = -200, my = -200;
+  let rfx = -200, rfy = -200;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    dot.style.left = mx + 'px';
+    dot.style.top = my + 'px';
+  }, { passive: true });
+
+  (function ringLoop() {
+    rfx += (mx - rfx) * 0.12;
+    rfy += (my - rfy) * 0.12;
+    ring.style.left = rfx + 'px';
+    ring.style.top = rfy + 'px';
+    requestAnimationFrame(ringLoop);
+  })();
+
+  /* Magnetic pull on cards / buttons */
+  document.querySelectorAll('.prod-card, .price-c, .cta-p, .cta-s, .btn-solid, .btn-ghost, .pbtn').forEach(el => {
+    el.addEventListener('mousemove', e => {
+      const r = el.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      if (el.classList.contains('prod-card') || el.classList.contains('price-c')) {
+        el.style.transform = `perspective(900px) rotateY(${(e.clientX - cx) / r.width * 7}deg) rotateX(${-(e.clientY - cy) / r.height * 5}deg) translateZ(6px)`;
+      } else {
+        const dx = (e.clientX - cx) * 0.12;
+        const dy = (e.clientY - cy) * 0.12;
+        el.style.transform = `translate(${dx}px, ${dy}px)`;
+      }
+    }, { passive: true });
+    el.addEventListener('mouseleave', () => {
+      el.style.transform = '';
+    });
+  });
+
+  /* ── Hero text scramble ── */
+  const h1 = document.querySelector('h1');
+  if (h1) {
+    const original = h1.innerText;
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&';
+    let frame = 0;
+    const totalFrames = 36;
+    const scrambleEl = document.createElement('span');
+    scrambleEl.style.cssText = 'display:block;white-space:pre-wrap;font:inherit;letter-spacing:inherit;line-height:inherit';
+    h1.innerHTML = '';
+    h1.appendChild(scrambleEl);
+    scrambleEl.textContent = original;
+    function scramble() {
+      frame++;
+      const progress = frame / totalFrames;
+      const revealed = Math.floor(progress * original.length);
+      let out = '';
+      for (let i = 0; i < original.length; i++) {
+        if (original[i] === ' ' || original[i] === '\n' || original[i] === '\t') {
+          out += original[i];
+        } else if (i < revealed) {
+          out += original[i];
+        } else {
+          out += chars[Math.floor(Math.random() * chars.length)];
+        }
+      }
+      scrambleEl.textContent = out;
+      if (frame < totalFrames) requestAnimationFrame(scramble);
+      else { h1.innerHTML = ''; h1.textContent = original; }
+    }
+    setTimeout(() => requestAnimationFrame(scramble), 400);
+  }
+
+  /* ── Particle burst on primary CTA ── */
+  const pCanvas = document.getElementById('particle-canvas');
+  const pCtx = pCanvas.getContext('2d');
+  let particles = [];
+  pCanvas.width = innerWidth;
+  pCanvas.height = innerHeight;
+  addEventListener('resize', () => {
+    pCanvas.width = innerWidth;
+    pCanvas.height = innerHeight;
+  });
+
+  class Particle {
+    constructor(x, y) {
+      this.x = x; this.y = y;
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 2 + Math.random() * 5;
+      this.vx = Math.cos(angle) * speed;
+      this.vy = Math.sin(angle) * speed - 2;
+      this.life = 1;
+      this.decay = 0.015 + Math.random() * 0.025;
+      this.size = 2 + Math.random() * 4;
+      const palette = ['#4B7BFF', '#7EB0FF', '#2B5FD9', '#B8CFFF', '#fff'];
+      this.color = palette[Math.floor(Math.random() * palette.length)];
+    }
+    update() {
+      this.x += this.vx;
+      this.y += this.vy;
+      this.vy += 0.12;
+      this.life -= this.decay;
+    }
+    draw(ctx) {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, this.life);
+      ctx.fillStyle = this.color;
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = this.color;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size * this.life, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function burst(x, y, n = 30) {
+    for (let i = 0; i < n; i++) particles.push(new Particle(x, y));
+  }
+
+  function animParticles() {
+    pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+    particles = particles.filter(p => p.life > 0);
+    particles.forEach(p => { p.update(); p.draw(pCtx); });
+    requestAnimationFrame(animParticles);
+  }
+  animParticles();
+
+  document.querySelectorAll('.cta-p, .pb-fill, .btn-solid').forEach(btn => {
+    btn.addEventListener('click', e => {
+      burst(e.clientX, e.clientY, 40);
+    });
+  });
+
+  /* ── Animated metric counters ── */
+  function animateCounter(el, target, suffix, duration = 1400) {
+    const isFloat = target % 1 !== 0;
+    let start = null;
+    const step = ts => {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const val = isFloat ? (target * eased).toFixed(1) : Math.round(target * eased);
+      el.textContent = val + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  /* Counter obs */
+  const counterObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const el = e.target;
+        const raw = el.textContent.replace(/[^0-9.]/g, '');
+        const target = parseFloat(raw);
+        if (!isNaN(target) && target > 0) {
+          animateCounter(el, target, '', 1200);
+        }
+        counterObs.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.metric-val, .pc-stat').forEach(el => {
+    const txt = el.textContent.trim();
+    if (/^\d/.test(txt)) counterObs.observe(el);
+  });
+
+  /* ── Typewriter effect for code block ── */
+  const codeEl = document.querySelector('.infra-code');
+  if (codeEl) {
+    const codeObs = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        const html = codeEl.innerHTML;
+        if (!html.includes('class="line"')) {
+          codeEl.innerHTML = html.split('\n').map(l => `<span class="line">${l}</span>`).join('\n');
+        }
+        const lines = codeEl.querySelectorAll('.line');
+        if (lines.length) {
+          lines.forEach((line, i) => {
+            line.style.animationDelay = (i * 80) + 'ms';
+            line.style.opacity = '0';
+            line.style.animation = `type-in .3s ease ${i * 80}ms forwards`;
+          });
+        }
+        codeObs.disconnect();
+      }
+    }, { threshold: 0.3 });
+    codeObs.observe(codeEl);
+    document.head.insertAdjacentHTML('beforeend', `<style>
+      @keyframes type-in {
+        from { opacity:0; transform:translateX(-8px); }
+        to { opacity:1; transform:none; }
+      }
+      .infra-code .line { display:block; }
+    </style>`);
+  }
+
+  /* ── SVG data flow connectors in arch section ── */
+  setTimeout(() => {
+    const steps = document.querySelectorAll('.arch-step');
+    if (steps.length > 1) {
+      const flowWrap = document.querySelector('.arch-flow');
+      if (flowWrap) {
+        flowWrap.style.position = 'relative';
+        const svgNS = 'http://www.w3.org/2000/svg';
+        steps.forEach((step, i) => {
+          if (i < steps.length - 1) {
+            const svg = document.createElementNS(svgNS, 'svg');
+            svg.setAttribute('style', 'position:absolute;top:50%;right:-1px;transform:translateY(-50%);width:2px;height:40px;z-index:10;overflow:visible');
+            const line = document.createElementNS(svgNS, 'line');
+            line.setAttribute('x1', '1'); line.setAttribute('y1', '0');
+            line.setAttribute('x2', '1'); line.setAttribute('y2', '40');
+            line.setAttribute('stroke', '#4B7BFF');
+            line.setAttribute('stroke-width', '1.5');
+            line.setAttribute('stroke-dasharray', '4 4');
+            line.setAttribute('opacity', '0.4');
+            const anim = document.createElementNS(svgNS, 'animate');
+            anim.setAttribute('attributeName', 'stroke-dashoffset');
+            anim.setAttribute('from', '0'); anim.setAttribute('to', '-16');
+            anim.setAttribute('dur', '0.8s'); anim.setAttribute('repeatCount', 'indefinite');
+            line.appendChild(anim);
+            svg.appendChild(line);
+            step.appendChild(svg);
+          }
+        });
+      }
+    }
+  }, 100);
+
+  /* ── Shimmer angle JS animation ── */
+  let shimmerT = 0;
+  (function shimmerLoop() {
+    shimmerT += 0.8;
+    document.querySelectorAll('.prod-card:hover, .price-c:hover, .metric:hover').forEach(card => {
+      card.style.setProperty('--shimmer-angle', shimmerT + 'deg');
+    });
+    requestAnimationFrame(shimmerLoop);
+  })();
+
+  /* ── Glitch on eyebrows on scroll reveal ── */
+  const eyebrowObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('glitch');
+        eyebrowObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.8 });
+  document.querySelectorAll('.eyebrow').forEach(el => eyebrowObs.observe(el));
+
+  /* ── Random glitch flashes on nav logo ── */
+  const navLogo = document.getElementById('navLogo');
+  if (navLogo) {
+    setInterval(() => {
+      if (Math.random() < 0.3) {
+        navLogo.style.filter = 'drop-shadow(0 0 16px rgba(75,123,255,1)) brightness(1.3)';
+        setTimeout(() => {
+          navLogo.style.filter = 'drop-shadow(0 0 8px rgba(75,123,255,.4))';
+        }, 80);
+      }
+    }, 2500);
+  }
+
+  /* ── Reactive grid background ── */
+  const gridBg = document.querySelector('.grid-bg');
+  if (gridBg) {
+    document.addEventListener('mousemove', e => {
+      const xPct = (e.clientX / innerWidth) * 100;
+      const yPct = (e.clientY / innerHeight) * 100;
+      gridBg.style.maskImage = `radial-gradient(ellipse 40% 40% at ${xPct}% ${yPct}%, black 0%, transparent 70%)`;
+      gridBg.style.webkitMaskImage = gridBg.style.maskImage;
+    }, { passive: true });
+  }
+
+  /* ── Section entrance light sweep ── */
+  document.querySelectorAll('.sec, .sec-full, .prob-band').forEach(sec => {
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        const sweep = document.createElement('div');
+        Object.assign(sweep.style, {
+          position: 'fixed', top: '0', left: '-100%', width: '100%', height: '100%',
+          pointerEvents: 'none',
+          background: 'linear-gradient(105deg, transparent 30%, rgba(75,123,255,.04) 50%, transparent 70%)',
+          transition: 'left 1.2s cubic-bezier(.16,1,.3,1)',
+          zIndex: '9990'
+        });
+        document.body.appendChild(sweep);
+        requestAnimationFrame(() => { sweep.style.left = '100%'; });
+        setTimeout(() => sweep.remove(), 1400);
+        obs.unobserve(sec);
+      }
+    }, { threshold: 0.15 });
+    obs.observe(sec);
+  });
+
+  /* ── Floating orb parallax ── */
+  document.addEventListener('mousemove', e => {
+    const x = (e.clientX / innerWidth - .5);
+    const y = (e.clientY / innerHeight - .5);
+    document.querySelectorAll('.aurora-orb').forEach((orb, i) => {
+      const depth = (i + 1) * 12;
+      orb.style.transform = `translate(${x * depth}px, ${y * depth}px)`;
+    });
+  }, { passive: true });
+
+})();
+</script>
+</body>
+</html>
