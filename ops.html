@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Regore — File a claim</title>
+<meta name="description" content="File an insurance claim for your AI trading agent on the Regore protocol."/>
+<meta property="og:title" content="Regore — File a claim"/>
+<meta property="og:image" content="https://regore.xyz/thumbnail.png"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://regore.xyz/thumbnail.png"/>
+<link rel="icon" type="image/png" href="images/favicon.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/claim.css"/>
+</head>
+<body>
+
+<div id="bg-base"></div>
+<div id="bg-scene" aria-hidden="true">
+  <div class="bg-orb bg-orb-a"></div>
+  <div class="bg-orb bg-orb-b"></div>
+  <div class="bg-orb bg-orb-c"></div>
+  <svg class="bg-geo" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+    <g class="geo-central">
+      <polygon class="geo-poly geo-poly-1" points="500,320 580,370 580,470 500,520 420,470 420,370"/>
+      <polygon class="geo-poly" points="500,320 580,370 540,300 460,300"/>
+      <line class="geo-line" x1="500" y1="320" x2="500" y2="520"/>
+      <line class="geo-line" x1="500" y1="240" x2="500" y2="320"/>
+      <line class="geo-line" x1="580" y1="420" x2="660" y2="420"/>
+    </g>
+    <ellipse class="geo-ring geo-ring-1" cx="500" cy="420" rx="200" ry="80"/>
+    <ellipse class="geo-ring geo-ring-2" cx="500" cy="420" rx="260" ry="60"/>
+    <ellipse class="geo-ring geo-ring-3" cx="500" cy="420" rx="330" ry="110"/>
+    <g class="geo-stars" opacity="0.35">
+      <circle cx="120" cy="80" r="1.2"/><circle cx="880" cy="120" r="1"/><circle cx="60" cy="350" r="1.4"/>
+      <circle cx="940" cy="280" r="1.2"/><circle cx="200" cy="800" r="1"/><circle cx="820" cy="820" r="1.3"/>
+      <circle cx="350" cy="50" r="1"/><circle cx="700" cy="30" r="1.5"/>
+    </g>
+    <line class="geo-flow-line" x1="500" y1="240" x2="760" y2="170"/>
+    <line class="geo-flow-line" x1="360" y1="380" x2="200" y2="340"/>
+  </svg>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav-logo" href="https://regore.xyz">
+    <img src="images/logo-white.png" alt="Regore"/>
+    <div>
+      <div class="nav-logo-name">REGORE</div>
+      <div class="nav-logo-tag">Protocol · Testnet</div>
+    </div>
+  </a>
+  <a class="nav-back" href="https://regore.xyz">← Back to site</a>
+</nav>
+
+<!-- APP GRID -->
+<div class="app">
+
+  <!-- LEFT: info + step list -->
+  <div class="left-panel">
+    <div class="claim-eyebrow">File a claim</div>
+    <h1 class="claim-title">Submit your claim.<br/><em>The tribunal decides.</em></h1>
+    <p class="claim-sub">For misconduct and protocol violation claims, evidence is reviewed by the three-agent DAO tribunal. Financial loss and per-trade payouts trigger automatically.</p>
+
+    <div class="info-chips">
+      <div class="info-chip">Protocol <span>Solana · Testnet</span></div>
+      <div class="info-chip">Settlement <span>USDC on-chain</span></div>
+      <div class="info-chip">Tribunal <span>3-agent DAO review</span></div>
+      <div class="info-chip">SLA <span>72h verdict window</span></div>
+    </div>
+
+    <div class="steps-list" id="stepsList">
+      <div class="step-item active" id="si-1" onclick="claimGoStep(1)">
+        <div class="step-num">01</div>
+        <div><div class="step-label">Agent identity</div><div class="step-desc">Agent ID · wallet · submitter</div></div>
+      </div>
+      <div class="step-item" id="si-2" onclick="claimGoStep(2)">
+        <div class="step-num">02</div>
+        <div><div class="step-label">Coverage type</div><div class="step-desc">Claim type · amount · date</div></div>
+      </div>
+      <div class="step-item" id="si-3" onclick="claimGoStep(3)">
+        <div class="step-num">03</div>
+        <div><div class="step-label">Evidence</div><div class="step-desc">Description · supporting docs</div></div>
+      </div>
+      <div class="step-item" id="si-4" onclick="claimGoStep(4)">
+        <div class="step-num">04</div>
+        <div><div class="step-label">Review &amp; submit</div><div class="step-desc">Confirm all details</div></div>
+      </div>
+    </div>
+
+    <div class="left-footer">
+      10% co-insurance escrow required.<br/>
+      Parametric payouts auto-trigger — no filing needed.<br/>
+      <a href="mailto:contact@regore.xyz" style="color:var(--accent-bright);text-decoration:none">contact@regore.xyz</a>
+    </div>
+  </div>
+
+  <!-- CENTER: form steps -->
+  <div class="center-panel">
+
+    <!-- Step 1 -->
+    <div class="step-panel active" id="sp-1">
+      <div class="panel-head">
+        Step 01 — Agent identity
+        <div class="panel-head-badge"><div class="pulse"></div>Testnet</div>
+      </div>
+      <div class="cf-field">
+        <label class="cf-label" for="cf-agent-id">Agent ID</label>
+        <input class="cf-input" id="cf-agent-id" type="text" placeholder="agt_..." autocomplete="off" spellcheck="false"/>
+        <div class="cf-err" id="cf-err-agent">Agent ID is required</div>
+      </div>
+      <div class="cf-field">
+        <label class="cf-label" for="cf-wallet">Agent wallet address</label>
+        <input class="cf-input" id="cf-wallet" type="text" placeholder="Solana public key" spellcheck="false"/>
+        <div class="cf-err" id="cf-err-wallet">Wallet address is required</div>
+      </div>
+      <div class="cf-field">
+        <label class="cf-label" for="cf-submitter">Submitted by</label>
+        <input class="cf-input" id="cf-submitter" type="text" placeholder="Operator, auditor, or entity name"/>
+      </div>
+      <div class="panel-nav">
+        <span></span>
+        <button class="btn-next" onclick="claimNext(2)">Next: coverage type →</button>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step-panel" id="sp-2">
+      <div class="panel-head">Step 02 — Coverage type</div>
+      <div class="cf-field">
+        <label class="cf-label">What happened?</label>
+        <div class="ctype-grid">
+          <div class="ctype-pill" data-type="loss_event" onclick="claimSelectType(this)">
+            <div class="ctype-pill-icon">↙</div>
+            <div style="flex:1"><div class="ctype-pill-name">Financial loss</div><div class="ctype-pill-desc">Wallet-level drawdown — auto-triggered by oracle</div></div>
+            <span class="ctype-pill-badge badge-auto">Auto</span>
+          </div>
+          <div class="ctype-pill" data-type="execution_failure" onclick="claimSelectType(this)">
+            <div class="ctype-pill-icon">⚠</div>
+            <div style="flex:1"><div class="ctype-pill-name">Execution failure</div><div class="ctype-pill-desc">Per-trade slippage or execution error</div></div>
+            <span class="ctype-pill-badge badge-auto">Auto</span>
+          </div>
+          <div class="ctype-pill" data-type="misconduct" onclick="claimSelectType(this)">
+            <div class="ctype-pill-icon">⛔</div>
+            <div style="flex:1"><div class="ctype-pill-name">Misconduct</div><div class="ctype-pill-desc">Operator or protocol-level rule violation</div></div>
+            <span class="ctype-pill-badge badge-hybrid">Tribunal</span>
+          </div>
+          <div class="ctype-pill" data-type="protocol_violation" onclick="claimSelectType(this)">
+            <div class="ctype-pill-icon">🛡</div>
+            <div style="flex:1"><div class="ctype-pill-name">Protocol violation</div><div class="ctype-pill-desc">Smart contract or oracle failure</div></div>
+            <span class="ctype-pill-badge badge-hybrid">Tribunal</span>
+          </div>
+          <div class="ctype-pill" data-type="strategy_failure" onclick="claimSelectType(this)">
+            <div class="ctype-pill-icon">🧠</div>
+            <div style="flex:1"><div class="ctype-pill-name">Strategy failure</div><div class="ctype-pill-desc">Agent behavioral drift or model failure</div></div>
+            <span class="ctype-pill-badge badge-hybrid">Tribunal</span>
+          </div>
+        </div>
+        <div class="cf-err" id="cf-err-type" style="display:none">Select a claim type</div>
+      </div>
+      <div class="cf-row">
+        <div class="cf-field">
+          <label class="cf-label" for="cf-amount">Amount claimed (SOL)</label>
+          <input class="cf-input" id="cf-amount" type="number" step="0.001" min="0.001" placeholder="e.g. 12.5"/>
+          <div class="cf-err" id="cf-err-amount">Enter a valid amount</div>
+        </div>
+        <div class="cf-field">
+          <label class="cf-label" for="cf-incident">Incident date</label>
+          <input class="cf-input" id="cf-incident" type="date"/>
+        </div>
+      </div>
+      <div class="panel-nav">
+        <button class="btn-back" onclick="claimBack(1)">← Back</button>
+        <button class="btn-next" onclick="claimNext(3)">Next: evidence →</button>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step-panel" id="sp-3">
+      <div class="panel-head">Step 03 — Description &amp; evidence</div>
+      <div class="cf-field">
+        <label class="cf-label" for="cf-description">Describe the incident</label>
+        <textarea class="cf-textarea" id="cf-description" rows="4" placeholder="What happened — when, what the agent did, what loss was incurred, and any relevant on-chain context."></textarea>
+        <div class="cf-err" id="cf-err-desc">Minimum 30 characters required</div>
+      </div>
+      <div class="cf-field">
+        <label class="cf-label">Supporting evidence</label>
+        <div class="ev-list" id="cf-ev-list"></div>
+        <div class="cf-row">
+          <select class="cf-select" id="cf-ev-type">
+            <option value="tx_hash">Tx hash</option>
+            <option value="screenshot">Screenshot URL</option>
+            <option value="log_export">Log export</option>
+            <option value="external_audit">External audit</option>
+            <option value="oracle_data">Oracle data</option>
+          </select>
+          <input class="cf-input" id="cf-ev-val" type="text" placeholder="Value or URL"/>
+        </div>
+        <button class="btn-back" style="margin-top:8px;width:100%;text-align:center;letter-spacing:.1em;font-size:10px" onclick="claimAddEvidence()">+ Add evidence item</button>
+      </div>
+      <div class="panel-nav">
+        <button class="btn-back" onclick="claimBack(2)">← Back</button>
+        <button class="btn-next" onclick="claimNext(4)">Review claim →</button>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step-panel" id="sp-4">
+      <div class="panel-head">Step 04 — Review &amp; submit</div>
+      <div id="cf-review-body">
+        <table class="review-table">
+          <tr><td>Agent ID</td><td id="rv-agent">—</td></tr>
+          <tr><td>Wallet</td><td id="rv-wallet">—</td></tr>
+          <tr><td>Submitted by</td><td id="rv-submitter">—</td></tr>
+          <tr><td>Type</td><td id="rv-type">—</td></tr>
+          <tr><td>Amount</td><td id="rv-amount">—</td></tr>
+          <tr><td>Incident</td><td id="rv-incident">—</td></tr>
+          <tr><td>Description</td><td id="rv-desc" style="white-space:pre-wrap;max-height:60px;overflow:hidden;text-overflow:ellipsis">—</td></tr>
+          <tr><td>Evidence</td><td id="rv-evidence">—</td></tr>
+        </table>
+        <div style="margin-top:12px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-sm);background:rgba(5,15,10,.4);font-family:var(--mono);font-size:9.5px;color:var(--ink-muted);line-height:1.6;letter-spacing:.03em">
+          Submitting sets claim status to <span style="color:var(--accent)">pending</span>. Tribunal claims are routed to the DAO panel. Parametric claims trigger on the next oracle cycle. 10% co-insurance escrow must be on deposit.
+        </div>
+      </div>
+      <div class="claim-success" id="cf-success">
+        <div class="success-check">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><polyline points="4 10 8 14 16 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="success-title">Claim submitted</div>
+        <div class="success-id" id="cf-success-id">CLM-TESTNET-0001</div>
+        <div class="success-note">Your claim has been registered and queued for tribunal review. You will receive an on-chain notification when the verdict is reached.</div>
+        <div class="success-actions">
+          <a href="https://regore.xyz#infrastructure" class="btn-back" style="text-decoration:none">View tribunal</a>
+          <button class="btn-next" onclick="claimReset()">File another</button>
+        </div>
+      </div>
+      <div class="panel-nav" id="cf-review-nav">
+        <button class="btn-back" onclick="claimBack(3)">← Back</button>
+        <button class="btn-submit" onclick="claimSubmit()">
+          <svg width="12" height="12" viewBox="0 0 13 13" fill="none"><path d="M2 6.5h9M7.5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Submit claim
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /center-panel -->
+
+  <!-- RIGHT: terminal -->
+  <div class="right-panel">
+    <div class="term-head">
+      <div class="term-dots">
+        <div class="term-dot" style="background:#E97070"></div>
+        <div class="term-dot" style="background:#F0B050"></div>
+        <div class="term-dot" style="background:#22D98A"></div>
+      </div>
+      <div class="term-title">API payload preview</div>
+    </div>
+    <div class="term-body">
+      <pre id="cf-term-pre"><span class="term-comment">// Updates as you type</span>
+<span class="term-comment">// POST /api/v1/claims</span>
+
+{
+  <span class="term-key">"agent_id"</span>: <span class="term-null">null</span>,
+  <span class="term-key">"claim_type"</span>: <span class="term-null">null</span>,
+  <span class="term-key">"amount_claimed"</span>: <span class="term-null">null</span>,
+  <span class="term-key">"description"</span>: <span class="term-null">null</span>,
+  <span class="term-key">"submitted_by"</span>: <span class="term-null">null</span>,
+  <span class="term-key">"evidence"</span>: []
+}</pre>
+    </div>
+    <div class="term-footer">
+      <div class="term-route">
+        <span class="term-method">POST</span>
+        <span class="term-path">/api/v1/claims</span>
+      </div>
+      <button class="term-copy-btn" onclick="claimCopyPayload()">Copy JSON</button>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+  <script src="js/claim.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+# Regore — Frontend Site Package
+
+Three-page website for the Regore parametric insurance protocol.
+
+## Structure
+
+```
+regore-site/
+├── index.html          ← Landing page (regore.xyz)
+├── claim.html          ← Claim filing app (claim.regore.xyz)
+├── ops.html            ← Ops dashboard (ops.regore.xyz)
+├── css/
+│   ├── main.css        ← Landing page styles
+│   ├── claim.css       ← Claim page styles
+│   └── ops.css         ← Ops dashboard styles
+├── js/
+│   ├── main.js         ← Landing page scripts
+│   ├── claim.js        ← Claim page scripts
+│   └── ops.js          ← Ops dashboard scripts
+├── images/
+│   ├── favicon.png     ← Browser tab icon (all pages)
+│   ├── logo-white.png  ← White logo for dark nav
+│   ├── logo-nav.png    ← Nav bar logo
+│   ├── thumbnail.png   ← Social share image (place at ROOT too)
+│   └── README.md       ← Image usage guide
+└── README.md           ← This file
+```
+
+## Deployment
+
+Each page deploys as a separate Cloudflare Pages project:
+
+### regore.xyz — Landing page
+1. Cloudflare Pages → Create project → Direct upload
+2. Upload the entire `regore-site/` folder
+3. Set custom domain: `regore.xyz`
+4. Also upload `thumbnail.png` to the project **root** (not inside /images)
+   so `https://regore.xyz/thumbnail.png` resolves for og:image
+
+### claim.regore.xyz — Claim page
+1. Cloudflare Pages → Create new project → Direct upload
+2. Upload same `regore-site/` folder (or just claim.html + css/claim.css + js/claim.js + images/)
+3. Set entry point: `claim.html`
+4. Set custom domain: `claim.regore.xyz`
+
+### ops.regore.xyz — Ops dashboard
+1. Cloudflare Pages → Create new project → Direct upload
+2. Set entry point: `ops.html`
+3. Set custom domain: `ops.regore.xyz`
+4. **Password protect with Cloudflare Access:**
+   - Cloudflare dashboard → Zero Trust → Access → Applications
+   - Add application → Self-hosted → Domain: ops.regore.xyz
+   - Policy: Emails → add your email
+   - Save — visitors get a one-time PIN before entry
+
+## External dependencies (CDN — loaded automatically)
+
+| Resource | URL | Used in |
+|---|---|---|
+| Google Fonts | fonts.googleapis.com | All pages |
+| Three.js r128 | cdnjs.cloudflare.com | Landing page (3D background) |
+
+No npm install needed. No build step. All pages are static HTML.
+
+## Editing
+
+### Changing colors
+Edit the `:root { }` block at the top of the relevant CSS file.
+Main brand color: `--accent: #0E8181`
+
+### Replacing the logo
+Drop your new PNG into `images/` and update references in `main.js`:
+```js
+const LOGO_URI = 'images/your-new-logo.png';
+```
+And in `index.html`:
+```html
+<img id="navLogo" src="images/your-new-logo.png" .../>
+```
+
+### Updating the social thumbnail
+1. Replace `images/thumbnail.png` with your new 1200×630px image
+2. Also place a copy at the project root as `thumbnail.png`
+
+### Connecting the claim page to your live API
+In `js/claim.js`, the `claimSubmit()` function currently generates a demo claim ID.
+Replace it with a real `fetch()` call:
+```js
+const res = await fetch('https://api.regore.xyz/api/v1/claims', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'x-api-key': 'YOUR_KEY' },
+  body: JSON.stringify(payload)
+});
+const data = await res.json();
+```
+
+### Connecting the Ops dashboard to your live API
+Click "Connect API" in the top-right of the dashboard,
+enter your API Gateway URL and API key.
+Settings are saved to localStorage.

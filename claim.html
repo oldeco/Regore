@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Regore</title>
+<meta name="description" content="Pre-launch parametric insurance protocol for autonomous AI agents on Solana. On-chain USDC coverage for financial loss, per-transaction slippage, and data breach events. Currently on testnet."/>
+<meta property="og:title" content="Regore"/>
+<meta property="og:description" content="Pre-launch parametric coverage protocol for autonomous agents. Currently on testnet. Built on Solana."/>
+<meta property="og:image" content="https://regore.xyz/thumbnail.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:type" content="website"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Regore"/>
+<meta name="twitter:description" content="Pre-launch parametric coverage protocol for autonomous agents on Solana."/>
+<meta name="twitter:image" content="https://regore.xyz/thumbnail.png"/>
+<link rel="icon" type="image/png" href="images/favicon.png"/>
+<link rel="apple-touch-icon" href="images/favicon.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700;800&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/main.css"/>
+</head>
+<body>
+<!-- ═══ BACKGROUND SYSTEM ═══ -->
+<div id="bg-base"></div>
+<div id="bg-scene" aria-hidden="true">
+  <!-- Drifting soft glows (no filter:blur — use radial-gradient opacity instead) -->
+  <div class="bg-orb bg-orb-a"></div>
+  <div class="bg-orb bg-orb-b"></div>
+  <div class="bg-orb bg-orb-c"></div>
+  <div class="bg-orb bg-orb-d"></div>
+  <!-- Geometric wireframe shapes — CSS only, GPU-composited via transform -->
+  <svg class="bg-geo" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <!-- Subtle noise texture via feTurbulence -->
+      <filter id="grain" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
+        <feColorMatrix type="saturate" values="0" in="noise" result="grey"/>
+        <feBlend in="SourceGraphic" in2="grey" mode="overlay" result="blend"/>
+        <feComposite in="blend" in2="SourceGraphic" operator="in"/>
+      </filter>
+      <!-- Radial fade mask for the scan lines -->
+      <radialGradient id="scan-fade" cx="50%" cy="50%" r="55%">
+        <stop offset="0%" stop-color="white" stop-opacity="0.07"/>
+        <stop offset="100%" stop-color="white" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+
+    <!-- Faint horizontal scan lines -->
+    <g opacity="1">
+      <rect x="0" y="0" width="1000" height="1000" fill="url(#scan-fade)"/>
+    </g>
+
+    <!-- Central icosahedron projection (dodecagonal approximation) -->
+    <g class="geo-central">
+      <polygon class="geo-poly geo-poly-1" points="500,320 580,370 580,470 500,520 420,470 420,370"/>
+      <polygon class="geo-poly geo-poly-2" points="500,320 580,370 540,300 460,300"/>
+      <polygon class="geo-poly geo-poly-3" points="580,370 580,470 640,430 640,330"/>
+      <polygon class="geo-poly geo-poly-4" points="500,520 580,470 540,540 460,540"/>
+      <polygon class="geo-poly geo-poly-5" points="420,370 420,470 360,430 360,330"/>
+      <polygon class="geo-poly geo-poly-6" points="500,320 460,300 360,330 420,370"/>
+      <polygon class="geo-poly geo-poly-7" points="500,520 460,540 360,530 420,470"/>
+      <!-- inner cross lines -->
+      <line class="geo-line" x1="500" y1="320" x2="500" y2="520"/>
+      <line class="geo-line" x1="420" y1="370" x2="580" y2="470"/>
+      <line class="geo-line" x1="580" y1="370" x2="420" y2="470"/>
+      <line class="geo-line" x1="500" y1="320" x2="500" y2="240"/>
+      <line class="geo-line" x1="500" y1="520" x2="500" y2="600"/>
+      <line class="geo-line" x1="580" y1="420" x2="660" y2="420"/>
+      <line class="geo-line" x1="420" y1="420" x2="340" y2="420"/>
+    </g>
+    <!-- Orbital ring 1 — ellipse -->
+    <ellipse class="geo-ring geo-ring-1" cx="500" cy="420" rx="200" ry="80"/>
+    <!-- Orbital ring 2 -->
+    <ellipse class="geo-ring geo-ring-2" cx="500" cy="420" rx="260" ry="60"/>
+    <!-- Satellite form top-right -->
+    <g class="geo-sat geo-sat-a">
+      <polygon class="geo-poly geo-sat-poly" points="760,180 800,210 800,270 760,300 720,270 720,210"/>
+      <!-- inner lines -->
+      <line class="geo-line geo-line-dim" x1="760" y1="210" x2="760" y2="270"/>
+      <line class="geo-line geo-line-dim" x1="720" y1="240" x2="800" y2="240"/>
+      <line class="geo-line geo-line-dim" x1="760" y1="180" x2="760" y2="140"/>
+      <line class="geo-line geo-line-dim" x1="760" y1="300" x2="760" y2="340"/>
+      <line class="geo-connector" x1="720" y1="240" x2="640" y2="380"/>
+    </g>
+    <!-- Satellite form bottom-left -->
+    <g class="geo-sat geo-sat-b">
+      <polygon class="geo-poly geo-sat-poly" points="200,620 235,645 235,695 200,720 165,695 165,645"/>
+      <line class="geo-line geo-line-dim" x1="200" y1="645" x2="200" y2="695"/>
+      <line class="geo-line geo-line-dim" x1="165" y1="670" x2="235" y2="670"/>
+      <line class="geo-line geo-line-dim" x1="200" y1="620" x2="200" y2="580"/>
+      <line class="geo-line geo-line-dim" x1="200" y1="720" x2="200" y2="760"/>
+      <line class="geo-connector" x1="235" y1="660" x2="400" y2="480"/>
+    </g>
+    <!-- Satellite form top-left -->
+    <g class="geo-sat geo-sat-c">
+      <polygon class="geo-poly geo-sat-poly-sm" points="180,220 210,240 210,280 180,300 150,280 150,240"/>
+      <line class="geo-line geo-line-dim" x1="180" y1="240" x2="180" y2="280"/>
+      <line class="geo-line geo-line-dim" x1="150" y1="260" x2="210" y2="260"/>
+      <line class="geo-connector" x1="210" y1="260" x2="410" y2="380"/>
+    </g>
+    <!-- Satellite form bottom-right -->
+    <g class="geo-sat geo-sat-d">
+      <polygon class="geo-poly geo-sat-poly-sm" points="820,640 848,658 848,694 820,712 792,694 792,658"/>
+      <line class="geo-line geo-line-dim" x1="820" y1="658" x2="820" y2="694"/>
+      <line class="geo-line geo-line-dim" x1="792" y1="676" x2="848" y2="676"/>
+      <line class="geo-connector" x1="792" y1="676" x2="610" y2="480"/>
+    </g>
+    <!-- NEW: Satellite form mid-right -->
+    <g class="geo-sat geo-sat-e">
+      <polygon class="geo-poly geo-sat-poly-sm" points="880,380 904,396 904,428 880,444 856,428 856,396"/>
+      <line class="geo-line geo-line-dim" x1="880" y1="396" x2="880" y2="428"/>
+      <line class="geo-connector" x1="856" y1="412" x2="680" y2="420"/>
+    </g>
+    <!-- NEW: Satellite form mid-left -->
+    <g class="geo-sat geo-sat-f">
+      <polygon class="geo-poly geo-sat-poly-sm" points="120,410 144,426 144,458 120,474 96,458 96,426"/>
+      <line class="geo-line geo-line-dim" x1="120" y1="426" x2="120" y2="458"/>
+      <line class="geo-connector" x1="144" y1="442" x2="340" y2="420"/>
+    </g>
+    <!-- Torus ring outer -->
+    <ellipse class="geo-ring geo-ring-3" cx="500" cy="420" rx="330" ry="110"/>
+    <!-- NEW: extra wide outer ring -->
+    <ellipse class="geo-ring geo-ring-4" cx="500" cy="420" rx="430" ry="140"/>
+    <!-- NEW: tilted inner ring -->
+    <ellipse class="geo-ring geo-ring-5" cx="500" cy="420" rx="160" ry="100" transform="rotate(30,500,420)"/>
+
+    <!-- Starfield dots — more stars, varied sizes -->
+    <g class="geo-stars" opacity="0.4">
+      <circle cx="120" cy="80"  r="1.2"/><circle cx="880" cy="120" r="1"/><circle cx="60"  cy="350" r="1.4"/>
+      <circle cx="940" cy="280" r="1.2"/><circle cx="200" cy="800" r="1"/><circle cx="820" cy="820" r="1.3"/>
+      <circle cx="350" cy="50"  r="1"/><circle cx="700" cy="30"  r="1.5"/><circle cx="50"  cy="600" r="1.2"/>
+      <circle cx="960" cy="550" r="1"/><circle cx="140" cy="460" r="1.1"/><circle cx="870" cy="470" r="1.3"/>
+      <circle cx="400" cy="900" r="1"/><circle cx="640" cy="920" r="1.2"/><circle cx="750" cy="160" r="1"/>
+      <circle cx="280" cy="140" r="1.3"/><circle cx="90"  cy="730" r="1"/><circle cx="910" cy="700" r="1.2"/>
+      <circle cx="500" cy="60"  r="1"/><circle cx="500" cy="950" r="1.1"/>
+      <!-- additional stars -->
+      <circle cx="460" cy="150" r="0.9"/><circle cx="620" cy="80"  r="1.1"/><circle cx="800" cy="600" r="0.8"/>
+      <circle cx="150" cy="550" r="1.0"/><circle cx="320" cy="880" r="0.9"/><circle cx="720" cy="860" r="1.0"/>
+      <circle cx="30"  cy="200" r="0.8"/><circle cx="970" cy="400" r="1.0"/><circle cx="440" cy="940" r="0.9"/>
+      <circle cx="850" cy="30"  r="0.8"/><circle cx="50"  cy="900" r="1.1"/><circle cx="950" cy="150" r="0.9"/>
+      <circle cx="240" cy="300" r="0.7"/><circle cx="780" cy="320" r="0.8"/><circle cx="600" cy="180" r="0.7"/>
+      <circle cx="380" cy="720" r="0.9"/><circle cx="670" cy="780" r="0.8"/><circle cx="100" cy="150" r="0.7"/>
+    </g>
+
+    <!-- Data flow lines (dashed, animate stroke-dashoffset) -->
+    <line class="geo-flow-line" x1="500" y1="240" x2="760" y2="170"/>
+    <line class="geo-flow-line geo-flow-slow" x1="360" y1="380" x2="200" y2="340"/>
+    <line class="geo-flow-line" x1="640" y1="460" x2="820" y2="510"/>
+    <line class="geo-flow-line geo-flow-slow" x1="420" y1="500" x2="200" y2="620"/>
+    <!-- NEW flow lines to new satellites -->
+    <line class="geo-flow-line" x1="680" y1="420" x2="856" y2="412"/>
+    <line class="geo-flow-line geo-flow-slow" x1="320" y1="420" x2="144" y2="442"/>
+  </svg>
+
+  <!-- Scanlines overlay -->
+  <div class="bg-scanlines"></div>
+</div>
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+<div class="grid-bg"></div>
+<div class="vign"></div>
+
+<!-- ═══════════════════════════ WHITEPAPER MODAL ═══════════════════════════ -->
+<div class="wp-backdrop" id="wpModal" onclick="if(event.target===this)closeWhitepaper()" role="dialog" aria-modal="true" aria-labelledby="wpModalTitle">
+  <div class="wp-frame">
+    <div class="wp-head">
+      <div class="wp-head-l">
+        <img src="images/logo-white.png" width="36" height="40" alt="Regore" style="object-fit:contain;flex-shrink:0;">
+        <div class="wp-head-txt">
+          <span class="wp-head-eyebrow">Whitepaper</span>
+          <span class="wp-head-title" id="wpModalTitle">Regore Protocol · v1.0</span>
+        </div>
+      </div>
+      <div class="wp-head-r">
+        <span class="wp-version">Q2 2026</span>
+        <button class="wp-close" onclick="closeWhitepaper()" aria-label="Close whitepaper">✕</button>
+      </div>
+      <div class="wp-progress"><div class="wp-progress-bar" id="wpProgressBar"></div></div>
+    </div>
+    <div class="wp-body" id="wpBody">
+
+      <!-- Cover -->
+      <div class="wp-cover">
+        <div class="wp-cover-eyebrow">Whitepaper · Version 1.0</div>
+        <h1>Regore</h1>
+        <div class="wp-cover-sub">Parametric Insurance Infrastructure for Autonomous AI Agents</div>
+        <div class="wp-cover-meta">
+          <span>Q2 2026</span>
+          <span class="sep"></span>
+          <span>contact@regore.xyz</span>
+          <span class="sep"></span>
+          <span>regore.xyz</span>
+        </div>
+      </div>
+
+      <!-- Abstract -->
+      <div class="wp-abstract">
+        <span class="wp-abstract-label">Abstract</span>
+        <em>Autonomous AI agents now execute billions of dollars in on-chain transactions across DeFi, payments, and data processing — yet no insurance infrastructure exists for them. Regore is a decentralised parametric insurance protocol built on Solana that delivers three coverage products for AI agent operators: financial-loss coverage, per-trade slippage protection, and data-breach indemnity. All claims are resolved without human adjusters. Financial-loss and per-trade payouts trigger automatically via decentralised oracle networks; data-breach claims are settled by a staked, cryptoeconomically incentivised reviewer panel within 72 hours. This paper details the market problem, Regore's protocol design, oracle architecture, tokeneconomics, risk-management framework, and go-to-market strategy.</em>
+      </div>
+
+      <!-- 1. Executive Summary -->
+      <h2><span class="wp-num">01</span>Executive Summary</h2>
+      <p>The rapid proliferation of autonomous AI agents operating in blockchain environments has created an unaddressed systemic risk. These agents — executing trades, managing liquidity, processing payments, and handling sensitive data on behalf of human principals — collectively control billions of dollars in assets across leading high-performance chains. Yet no dedicated insurance infrastructure covers them. When agents fail, are exploited, or breach data obligations, their operators bear the entire loss with no mechanism for recovery.</p>
+      <p>Regore is a decentralised risk-sharing protocol that fills this gap. By combining parametric trigger logic, battle-tested oracle infrastructure, and a transparent on-chain reserve pool, Regore delivers the first AI-agent-native insurance products designed for high-throughput blockchain ecosystems. Three coverage lines address the most material risks operators face:</p>
+      <ul>
+        <li><strong>Financial Loss Coverage:</strong> up to $30,000 per session, triggered automatically when wallet losses exceed a defined threshold.</li>
+        <li><strong>Per-Trade Cover:</strong> up to $5,000 per transaction, settling on the price delta between order submission and execution.</li>
+        <li><strong>Data Breach Indemnity:</strong> up to $30,000 per incident, resolved by a five-member staked reviewer panel within 72 hours.</li>
+      </ul>
+      <p>Regore operates as a decentralised autonomous mutual — modelled on the legal and operational structure validated by Nexus Mutual — requiring no insurance licence and governed by its community of token holders. Premiums are priced algorithmically based on each agent's on-chain risk profile. Reserve capital is pooled, deployed into low-risk DeFi yield strategies, and backstopped by a reinsurance arrangement for large individual claims. Liquidity providers earn risk-adjusted returns of 8–14% APY.</p>
+      <p>Regore is raising a seed round to fund smart-contract development, security auditing, oracle integration, and the onboarding of design-partner operators for a controlled mainnet launch.</p>
+
+      <!-- 2. The Problem -->
+      <h2><span class="wp-num">02</span>The Problem: Uninsured AI Agents in a High-Value Environment</h2>
+
+      <h3><span class="wp-num">2.1</span>The Rise of Autonomous AI Agents On-Chain</h3>
+      <p>The combination of sub-second finality, near-zero transaction costs, and a rich ecosystem of DeFi primitives across leading high-performance chains has made these networks the preferred environment for high-frequency, programmatic activity. AI agents — software systems that autonomously execute actions in pursuit of defined objectives — have become significant participants. They arbitrage price discrepancies across decentralised exchanges, rebalance lending positions, process micro-payments on behalf of users, and increasingly manage sensitive personal and financial data.</p>
+      <p>By early 2026, total value locked across major DeFi ecosystems exceeded tens of billions of dollars. Industry analysts estimate that autonomous agents — including algorithmic trading bots, AI-powered portfolio managers, and automated payment rails — account for a growing share of on-chain transaction volume. The global market for AI-agent transaction infrastructure is projected to reach $40 billion by the end of 2026.</p>
+
+      <h3><span class="wp-num">2.2</span>The Insurance Gap</h3>
+      <p>Despite their scale and sophistication, AI agents are categorically uninsured. Three data points illustrate the severity of this gap:</p>
+      <div class="wp-table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Current State</th><th>Implication for Operators</th></tr></thead>
+          <tbody>
+            <tr><td>DeFi exploit losses (2025)</td><td>$3.4 billion</td><td>Zero covered by insurance products</td></tr>
+            <tr><td>DeFi TVL insured globally</td><td>&lt; 0.5% of total</td><td>AI agents: no dedicated products exist</td></tr>
+            <tr><td>High-performance chain DeFi TVL (Q1 2026)</td><td>Tens of billions</td><td>Entirely uncovered by any protocol</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="wp-table-caption">Table 1 · The AI Agent Insurance Gap</div>
+      <p>Existing DeFi insurance protocols — including Nexus Mutual, InsurAce, and Unslashed Finance — are structurally mismatched for AI-agent use cases. They are designed primarily for Ethereum smart-contract risk, require manual claim filing and adjudication, and offer no per-transaction coverage mechanism. None are deployed on Solana. Armilla AI has pioneered enterprise AI liability coverage, but their product targets corporate clients via traditional insurance channels, not on-chain agent operators that require real-time, automated settlement.</p>
+
+      <h3><span class="wp-num">2.3</span>Categories of AI Agent Risk</h3>
+      <p>Through research and operator interviews, Regore has identified three primary categories of loss event that AI agent operators consistently cite as material concerns:</p>
+      <h4>Financial Loss</h4>
+      <p>An agent's wallet is drained through exploitation of a smart-contract vulnerability, a flash-loan attack on a protocol it is interacting with, or a configuration error that causes runaway adverse trading. The operator loses the capital under management with no recourse. This category is particularly severe because agents often operate with positions that significantly exceed the value of the underlying protocol's treasury.</p>
+      <h4>Per-Trade Slippage and Execution Failure</h4>
+      <p>High-frequency agents are systematically exposed to the delta between the price at which an order is submitted and the price at which it executes — a gap caused by block-time latency, network congestion, or MEV extraction. While individual slippage events may be small, they compound across thousands of trades per session and can render otherwise profitable strategies uneconomic. No existing product insures individual transaction execution.</p>
+      <h4>Data Breach</h4>
+      <p>AI agents increasingly handle sensitive data: user wallet addresses, trading strategies, personally identifiable information, and proprietary model weights. A breach — whether through a compromised API key, an insecure storage mechanism, or a man-in-the-middle attack on an agent's communication channel — can expose operators to regulatory liability (particularly under emerging AI-accountability frameworks) and reputational damage that existing indemnity products do not cover in the decentralised context.</p>
+      <blockquote>"When an agent is hacked or leaks data, the operator loses everything. There is no call centre, no adjuster, no policy. Just loss."</blockquote>
+      <p>This absence of a coverage layer is not merely a commercial inconvenience: it constitutes a systemic vulnerability that suppresses the legitimate growth of AI-agent infrastructure. Operators who would otherwise deploy capital at scale are constrained by tail-risk exposure they cannot hedge.</p>
+
+      <!-- 3. The Regore Protocol -->
+      <h2><span class="wp-num">03</span>The Regore Protocol</h2>
+
+      <h3><span class="wp-num">3.1</span>Design Philosophy</h3>
+      <p>Regore is built on four first principles derived from the failure modes of existing DeFi insurance products:</p>
+      <ul>
+        <li><strong>Parametric over indemnity:</strong> wherever possible, payouts trigger from objectively measurable on-chain events rather than subjective loss assessment. This eliminates adjuster fraud, moral hazard from inflated claims, and the delays inherent in manual review.</li>
+        <li><strong>Oracle-native:</strong> coverage triggers are derived from the same oracle infrastructure that the broader DeFi ecosystem relies upon, ensuring that the definition of a loss event is tamper-resistant and verifiable by all parties.</li>
+        <li><strong>Solana-native:</strong> all premium payments, reserve management, claim payouts, and governance actions are settled on Solana using USDC. No off-chain intermediaries, no custodians, no trust assumptions.</li>
+        <li><strong>Risk-aligned incentives:</strong> every participant in the system — policyholders, liquidity providers, and reviewers — must have economic skin in the game that aligns their behaviour with honest, sustainable operation of the protocol.</li>
+      </ul>
+
+      <h3><span class="wp-num">3.2</span>Coverage Products</h3>
+
+      <h4>Product 1 · Financial Loss Coverage</h4>
+      <p>Financial Loss Coverage protects AI agent operators against material wallet depletion events. At policy inception, the operator registers their agent's primary wallet address and selects a loss threshold expressed as a percentage of the insured balance (minimum 10%, maximum 50%). They lock a 10% co-insurance deposit into an escrow account.</p>
+      <p>A wallet-monitoring oracle observes the wallet balance at 60-second intervals throughout the policy period. When the reported balance falls below the threshold, an independent price feed is used to compute the USD-denominated loss at the moment of breach. The protocol's smart contract automatically transfers the lesser of the computed loss amount or the policy maximum ($30,000) in USDC to the operator's registered wallet. No claim filing is required.</p>
+      <div class="wp-table-wrap">
+        <table>
+          <thead><tr><th>Parameter</th><th>Specification</th></tr></thead>
+          <tbody>
+            <tr><td>Maximum payout</td><td><strong>$30,000 USDC per session</strong></td></tr>
+            <tr><td>Premium</td><td>Risk-adjusted; contact for current rates</td></tr>
+            <tr><td>Co-insurance deposit</td><td>10% of coverage limit, returned on cancellation</td></tr>
+            <tr><td>Waiting period</td><td>30 days from policy inception (fraud protection)</td></tr>
+            <tr><td>Oracle stack</td><td>Wallet-monitoring oracle + decentralised price feed</td></tr>
+            <tr><td>Settlement</td><td>Automatic, within one oracle cycle (~60 seconds)</td></tr>
+            <tr><td>Payout cap (first 90 days)</td><td>50% of computed loss (fraud suppression period)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="wp-table-caption">Table 2 · Financial Loss Coverage Parameters</div>
+
+      <h4>Product 2 · Per-Trade Cover</h4>
+      <p>Per-Trade Cover insures individual on-chain transactions against adverse price movement between order submission and execution. This product is designed for high-frequency trading agents, market-making bots, and arbitrage strategies where per-transaction slippage is a material operating cost.</p>
+      <p>When the agent submits a transaction, the Regore co-processor records the oracle-reported price of the relevant asset at submission time. After confirmation, the co-processor computes the execution price from the transaction's instruction data. If the negative delta — expressed as <em>(submission price − execution price) / submission price</em> — exceeds the operator's configured threshold, a payout is triggered. A small per-transaction micro-premium is deducted from the operator's pre-funded USDC deposit for each covered transaction, regardless of whether a payout occurs.</p>
+      <div class="wp-table-wrap">
+        <table>
+          <thead><tr><th>Parameter</th><th>Specification</th></tr></thead>
+          <tbody>
+            <tr><td>Maximum payout</td><td><strong>$5,000 USDC per transaction</strong></td></tr>
+            <tr><td>Premium</td><td>Per-transaction micro-premium; contact for current rates</td></tr>
+            <tr><td>Threshold range</td><td>0.5%–5.0% slippage (operator-configured)</td></tr>
+            <tr><td>Waiting period</td><td>None; active on first transaction</td></tr>
+            <tr><td>Oracle</td><td>Decentralised price feeds (submission and execution)</td></tr>
+            <tr><td>Settlement</td><td>Automatic, within one block</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="wp-table-caption">Table 3 · Per-Trade Cover Parameters</div>
+
+      <h4>Product 3 · Data Breach Indemnity</h4>
+      <p>Data Breach Indemnity covers losses arising from the unauthorised disclosure, exfiltration, or misuse of data handled by a registered AI agent. At policy inception, the operator submits a SHA-256 hash of their agent's execution logs for the prior 30 days — a requirement that establishes a cryptographic baseline of the agent's normal operational footprint and serves as the ground truth for breach verification.</p>
+      <p>When a data breach occurs, the operator submits a claim package comprising: the incident timestamp, a description of the breach mechanism, a signed assertion of loss amount, and execution logs sufficient to demonstrate the breach event. Five reviewers, selected randomly from Regore's staked reviewer registry, are allocated the claim. Reviewers earn a review fee if their vote aligns with the majority outcome; reviewers in the minority forfeit a portion of their stake. A 3-of-5 supermajority is required for claim approval. If approved, USDC up to the policy maximum ($30,000) transfers to the operator within 72 hours of claim submission.</p>
+      <div class="wp-table-wrap">
+        <table>
+          <thead><tr><th>Parameter</th><th>Specification</th></tr></thead>
+          <tbody>
+            <tr><td>Maximum payout</td><td><strong>$30,000 USDC per incident</strong></td></tr>
+            <tr><td>Premium</td><td>Risk-adjusted; contact for current rates</td></tr>
+            <tr><td>Co-insurance deposit</td><td>10% of coverage limit</td></tr>
+            <tr><td>Proof of operation</td><td>30 days of signed log hashes required at inception</td></tr>
+            <tr><td>Review panel</td><td>5 staked reviewers, randomly selected; 3-of-5 approval</td></tr>
+            <tr><td>Settlement</td><td>Within 72 hours of claim submission</td></tr>
+            <tr><td>Scope</td><td>PII, financial data, proprietary models, API credentials</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="wp-table-caption">Table 4 · Data Breach Indemnity Parameters</div>
+
+      <!-- 4. Architecture -->
+      <h2><span class="wp-num">04</span>Protocol Architecture</h2>
+
+      <h3><span class="wp-num">4.1</span>Smart Contract Stack</h3>
+      <p>Regore is implemented as a set of programs deployed on Solana using the Anchor framework. The core programmes are:</p>
+      <ul>
+        <li><strong>Registry Programme:</strong> maintains the on-chain registry of agent wallet addresses, coverage parameters, policy states, and oracle authorisation records.</li>
+        <li><strong>Premium Vault Programme:</strong> accepts USDC premium payments and co-insurance deposits, routes funds to the reserve pool, and manages escrow release on policy cancellation or claim settlement.</li>
+        <li><strong>Claim Processor Programme:</strong> receives oracle attestations for parametric products and executes automatic transfers; receives signed reviewer votes for data-breach claims and executes conditional transfers upon quorum.</li>
+        <li><strong>Reserve Pool Programme:</strong> manages the aggregate pool of LP capital and unearned premiums; authorises transfers to the claim processor; interfaces with reputable lending markets for idle-capital yield generation.</li>
+        <li><strong>Governance Programme:</strong> implements REGR token-weighted voting on protocol parameter changes, premium model updates, reviewer eligibility criteria, and reserve deployment decisions.</li>
+      </ul>
+      <p>All programmes are formally verified against a specification that constrains state transitions to prevent reentrancy, integer overflow, and unauthorised fund access. The codebase will be audited by a reputable security firm prior to mainnet deployment.</p>
+
+      <h3><span class="wp-num">4.2</span>Oracle Architecture</h3>
+      <p>Regore's oracle architecture is deliberately layered, with each layer designed to handle a specific category of information and provide a distinct set of security guarantees:</p>
+
+      <h4>Layer 1 · Parametric Oracle</h4>
+      <p>A pair of decentralised oracle networks provides real-time price feeds and configurable off-chain data feeds (including wallet balance polling and custom computation tasks). For Financial Loss Coverage and Per-Trade Cover, these feeds serve as the sole source of truth: if the data says a loss occurred, the payout executes. No human discretion is applied. This layer handles approximately 95% of expected claims by volume.</p>
+
+      <h4>Layer 2 · Hybrid Staked Review (UMA-style Optimistic Oracle)</h4>
+      <p>For Data Breach Indemnity — where the loss event is a real-world occurrence that cannot be directly observed on-chain — Regore implements a reviewer panel modelled on UMA Protocol's optimistic oracle and the Nexus Mutual claim-assessment framework. Reviewers must stake a minimum of 1,000 REGR tokens to join the registry. For each claim, five reviewers are selected using a verifiable random function (VRF) seeded by the claim transaction hash.</p>
+      <p>Reviewer incentives are structured to produce honest outcomes: the expected return from voting truthfully (earning the review fee plus stake preservation) exceeds the expected return from colluding with a fraudulent claimant (earning a share of the fraudulent payout minus stake forfeiture risk). This property holds as long as the proportion of dishonest reviewers remains below 40%, which the staking requirement and slashing mechanism are calibrated to achieve.</p>
+
+      <h4>Layer 3 · DAO Governance Escalation</h4>
+      <p>Any party — claimant, reviewer, or liquidity provider — may escalate a disputed data-breach claim to the protocol's DAO governance layer, implemented via the Governance Programme. Disputed claims are put to a token-weighted vote among all REGR holders, with a seven-day deliberation period. This layer serves as the final backstop for edge cases that the reviewer panel mechanism cannot definitively resolve.</p>
+
+      <h3><span class="wp-num">4.3</span>Pricing Model</h3>
+      <p>Premium pricing is computed on-chain at policy inception using a base rate multiplied by four risk factors derived from the agent's on-chain history and declared operational parameters:</p>
+      <div class="wp-formula"><strong>Premium</strong> = Coverage Limit × Base Rate (4%) × Capital Multiplier × Data Sensitivity Factor × Autonomy Level Factor</div>
+      <p>The Capital Multiplier scales with the ratio of capital under management to the operator's historical average, penalising sudden leverage increases. The Data Sensitivity Factor reflects the classification of data the agent handles (from 1.0× for public data to 2.5× for regulated PII). The Autonomy Level Factor reflects the degree of human oversight in the agent's decision loop (from 1.0× for supervised agents to 1.8× for fully autonomous agents). All factors are declared by the operator and verified against on-chain evidence where available; misrepresentation voids coverage.</p>
+
+      <!-- 5. Risk Management -->
+      <h2><span class="wp-num">05</span>Risk Management Framework</h2>
+
+      <h3><span class="wp-num">5.1</span>Reserve Architecture</h3>
+      <p>The Regore reserve pool is structured to ensure solvency under realistic stress scenarios while providing competitive returns to liquidity providers. At launch, the protocol targets a coverage-to-reserve ratio of 1.5:1 — meaning aggregate coverage limits outstanding will not exceed 150% of the reserve pool's USDC balance. This ratio is enforced programmatically: new policy issuance is paused if the ratio would be breached.</p>
+      <p>A minimum surplus fund of 15% of total premiums is retained before any distributions are made to liquidity providers. This fund accumulates over time and provides a first-loss buffer ahead of the general reserve pool.</p>
+
+      <h3><span class="wp-num">5.2</span>Fraud Suppression Mechanisms</h3>
+      <p>Regore's fraud suppression stack combines four independent mechanisms, each targeting a different attack vector:</p>
+      <ul>
+        <li><strong>30-day waiting period:</strong> prevents purchase of coverage after a known exploit event has occurred but before it is publicly disclosed. This eliminates the most common form of insurance fraud observed in DeFi protocols.</li>
+        <li><strong>10% co-insurance deposit:</strong> requires policyholders to bear 10% of the first-loss exposure. Forfeited 100% on fraudulent claims and 50% on claims rejected for insufficient evidence. Creates real financial disincentive against speculative or inflated claims.</li>
+        <li><strong>30-day proof-of-operation requirement (Data Breach):</strong> establishes that the agent was genuinely operational before the alleged breach, preventing the creation of phantom agents for the purpose of filing fabricated claims.</li>
+        <li><strong>50% payout cap during the first 90 days:</strong> limits maximum exposure during the period before the protocol has accumulated sufficient historical loss data to validate its pricing model.</li>
+      </ul>
+
+      <h3><span class="wp-num">5.3</span>Reinsurance Arrangement</h3>
+      <p>Claims exceeding $20,000 on any individual policy are eligible for reinsurance recovery under an arrangement under negotiation with a leading decentralised reinsurance protocol. Reinsurance participation provides a capital backstop that allows Regore to offer coverage limits that would otherwise be imprudent relative to the reserve pool size at launch. The reinsurance premium is treated as a protocol operating expense, borne by the protocol surplus fund rather than passed directly to policyholders.</p>
+
+      <h3><span class="wp-num">5.4</span>Reserve Deployment</h3>
+      <p>Idle reserve capital not required to satisfy near-term claim obligations is deployed into vetted DeFi lending markets, generating a base yield of approximately 4–6% APY. This yield supplements the premium income distributed to liquidity providers, improving their effective return without increasing policyholder costs. The protocol governance defines a maximum deployment cap — initially 40% of the reserve pool — to ensure sufficient liquidity for immediate claim settlement.</p>
+
+      <!-- 6. Tokeneconomics -->
+      <h2><span class="wp-num">06</span>Tokeneconomics</h2>
+
+      <h3><span class="wp-num">6.1</span>The REGR Token</h3>
+      <p>REGR is the native governance and utility token of the Regore protocol. Its functions are:</p>
+      <ul>
+        <li><strong>Governance:</strong> REGR holders vote on protocol parameters, premium model updates, reserve deployment strategies, reviewer eligibility criteria, and treasury allocations.</li>
+        <li><strong>Reviewer staking:</strong> Reviewers must stake a minimum of 1,000 REGR tokens to participate in Data Breach Indemnity claim assessment. Stakes are slashed for dishonest or negligent review.</li>
+        <li><strong>Protocol fee discounts:</strong> Operators holding REGR receive a discount of up to 15% on their monthly premium, creating demand-side utility that does not depend on speculative value.</li>
+        <li><strong>LP participation:</strong> Liquidity providers who stake REGR alongside their USDC deposits receive boosted yield allocations, incentivising long-term capital commitment.</li>
+      </ul>
+      <p>REGR has a fixed total supply of 100,000,000 tokens. It is not launched at protocol inception; the token launch is scheduled for a future milestone, after the protocol has demonstrated sustainable premium revenue and a loss ratio within the modelled range. This sequencing avoids the governance capture and speculative dynamics that have undermined other DeFi insurance protocols that launched tokens before establishing product-market fit.</p>
+
+      <h3><span class="wp-num">6.2</span>Revenue Distribution</h3>
+      <p>Gross premium revenue is distributed in the following waterfall:</p>
+      <div class="wp-table-wrap">
+        <table>
+          <thead><tr><th>Destination</th><th>Allocation</th></tr></thead>
+          <tbody>
+            <tr><td>Protocol surplus fund (first-loss buffer)</td><td>15% of gross premiums</td></tr>
+            <tr><td>Reinsurance premium</td><td>~5% of gross premiums (claims &gt; $20K)</td></tr>
+            <tr><td>Liquidity provider yield pool</td><td>Pro-rata share of remaining premiums after costs</td></tr>
+            <tr><td>Reviewer fees (Data Breach product only)</td><td>0.5% of covered Data Breach premiums per claim</td></tr>
+            <tr><td>Protocol treasury (development, audits)</td><td>5% of gross premiums</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="wp-table-caption">Table 5 · Premium Revenue Distribution Waterfall</div>
+
+      <h3><span class="wp-num">6.3</span>Liquidity Provider Economics</h3>
+      <p>Liquidity providers deposit USDC into the Regore reserve pool. Their capital is at risk in the event of claims exceeding premium income and the surplus fund. In exchange, they receive a pro-rata share of net premium income after the protocol surplus allocation and operating expenses, a pro-rata share of yield generated by the deployed reserve capital, and REGR token boost allocations proportional to their staked REGR balance (post-token launch).</p>
+      <p>Under the base-case model (loss ratio: 60%, blended premium consistent with risk-adjusted pricing, reserve deployment yield: 5%), the projected LP return is 11.4% APY. Liquidity providers are subject to a seven-day unbonding period before withdrawal, which prevents liquidity runs in the immediate aftermath of a large claim event.</p>
+
+      <!-- 7. Market -->
+      <h2><span class="wp-num">07</span>Market and Competitive Landscape</h2>
+
+      <h3><span class="wp-num">7.1</span>Addressable Market</h3>
+      <p>Regore's addressable market sits at the intersection of three converging trends: the growth of AI-agent infrastructure, the expansion of DeFi on high-performance chains, and the emergence of regulatory frameworks that impose liability on AI operators. The TAM is estimated as follows:</p>
+      <div class="wp-table-wrap">
+        <table>
+          <thead><tr><th>Market Segment</th><th>2026 Estimate</th><th>Regore Relevance</th></tr></thead>
+          <tbody>
+            <tr><td>AI-agent transaction volume (DeFi + payments)</td><td>$40B+</td><td>Per-trade and financial-loss products</td></tr>
+            <tr><td>High-performance chain DeFi TVL</td><td>Tens of billions</td><td>Financial-loss exposure for active agents</td></tr>
+            <tr><td>DeFi insurance TVL (global)</td><td>$1.7B (growing to $5–8B)</td><td>Reserve capital and product design benchmarks</td></tr>
+            <tr><td>Enterprise AI deployment spend (global)</td><td>$150B+</td><td>Data breach indemnity product</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="wp-table-caption">Table 6 · Regore Total Addressable Market</div>
+
+      <h3><span class="wp-num">7.2</span>Competitive Analysis</h3>
+      <p>No existing protocol directly competes with Regore's combined value proposition. The competitive landscape can be segmented into the following:</p>
+      <div class="wp-table-wrap">
+        <table>
+          <thead><tr><th>Protocol</th><th>Coverage Type</th><th>Multi-chain?</th><th>Per-Trade?</th><th>AI Agent-Native?</th></tr></thead>
+          <tbody>
+            <tr><td>Nexus Mutual</td><td>Smart-contract risk</td><td>Limited</td><td>No</td><td>No</td></tr>
+            <tr><td>InsurAce</td><td>Protocol coverage</td><td>Limited</td><td>No</td><td>No</td></tr>
+            <tr><td>Unslashed Finance</td><td>DeFi coverage</td><td>Limited</td><td>No</td><td>No</td></tr>
+            <tr><td>Armilla AI</td><td>AI liability</td><td>Off-chain</td><td>No</td><td>Partial (enterprise)</td></tr>
+            <tr><td><strong>Regore</strong></td><td><strong>AI agent-native</strong></td><td><strong>Yes</strong></td><td><strong>Yes</strong></td><td><strong>Yes (full)</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="wp-table-caption">Table 7 · Competitive Differentiation</div>
+      <p>Regore's structural advantages are: (1) first-mover for any AI-agent insurance product on high-performance chains; (2) the only protocol offering per-trade parametric coverage; (3) native integration with the oracle infrastructure already trusted by the protocols Regore's policyholders interact with; and (4) a product design that explicitly optimises for the operational requirements of autonomous agents rather than adapting a human-centric insurance model.</p>
+
+      <!-- 8. Traction -->
+      <h2><span class="wp-num">08</span>Traction and Validation</h2>
+
+      <h3><span class="wp-num">8.1</span>Product Development</h3>
+      <p>Regore has completed the following milestones prior to its seed raise:</p>
+      <ul>
+        <li>Full-stack frontend MVP deployed on testnet, including Web3 wallet integration, a three-product policy purchase flow, a live agent monitoring dashboard, a per-trade feed interface, an LP deposit and withdrawal interface, and a claims submission portal.</li>
+        <li>Decentralised oracle feeds integrated on testnet. Parametric trigger logic for both Financial Loss Coverage and Per-Trade Cover has been tested against real price data, with sub-second latency confirmed for Per-Trade Cover and 60-second polling confirmed for Financial Loss Coverage.</li>
+        <li>SHA-256 log hash commitment mechanism designed and prototyped. The reviewer selection and staking interface is designed and pending smart-contract implementation.</li>
+      </ul>
+
+      <h3><span class="wp-num">8.2</span>Customer Discovery</h3>
+      <p>Regore conducted structured interviews with ten AI-agent operators across three categories: DeFi trading bots (four), data-processing agents (three), and payment automation agents (three). Key findings:</p>
+      <ul>
+        <li>Eight of ten operators confirmed willingness to pay a meaningful monthly premium for Financial Loss Coverage on their production agents, representing a strong signal of product-market fit.</li>
+        <li>Six of ten operators cited per-trade slippage as a 'significant' or 'material' operating cost, validating the economic case for Per-Trade Cover.</li>
+        <li>All ten operators were unaware of any existing insurance product that covered their agents' operations, confirming the absence of incumbent competition.</li>
+      </ul>
+
+      <h3><span class="wp-num">8.3</span>Ecosystem Timing</h3>
+      <p>The market infrastructure for Regore's product is maturing rapidly. In March 2026, Aon — one of the world's largest insurance brokers — completed the first on-chain insurance premium settlement on Solana. Armilla AI secured Lloyd's of London backing for the first AI model liability policy in April 2025. These developments signal that institutional capital and traditional risk-transfer markets are actively seeking exposure to AI insurance risk — a validation of the category that Regore is designed to serve natively.</p>
+
+      <h3><span class="wp-num">8.4</span>Liquidity Provider Interest</h3>
+      <p>Three DeFi treasury teams have engaged in preliminary conversations about participating as liquidity providers in the Regore reserve pool at the target return of 11.4% APY. One investment fund focused on on-chain risk infrastructure has expressed interest in committing capital at protocol launch, subject to completion of the security audit and mainnet deployment.</p>
+
+      <!-- 9. GTM -->
+      <h2><span class="wp-num">09</span>Go-to-Market Strategy</h2>
+
+      <h3><span class="wp-num">9.1</span>Phase 1 · Controlled Launch</h3>
+      <p>The controlled launch phase prioritises quality over quantity. Regore will onboard a maximum of ten design-partner operators recruited from the customer-discovery process. These operators receive subsidised premiums in exchange for committing to provide detailed operational feedback, participate in the reviewer registry with their technical staff, and serve as public references for the protocol. The design-partner programme allows Regore to validate the claim-trigger logic, pricing model, and reviewer-incentive structure against real-world loss events before opening the protocol to permissionless access.</p>
+      <p><strong>Target metrics at end of Phase 1:</strong> $500,000 USDC in reserve pool TVL; ten active policies; zero unresolved disputed claims; loss ratio within modelled range (55–65%).</p>
+
+      <h3><span class="wp-num">9.2</span>Phase 2 · Ecosystem Growth</h3>
+      <p>Phase 2 opens the protocol to permissionless policy purchase and LP participation. The Data Breach Indemnity product is launched, and the reviewer registry is opened to any REGR staker meeting the minimum stake threshold. Regore pursues integrations with the major DeFi protocols whose users are most likely to be operating AI agents: DEX aggregators, MEV infrastructure, perpetuals venues, and NFT automation platforms. A B2B API is launched that allows AI-agent platforms and agent-building frameworks to embed Regore coverage as a native feature of their products.</p>
+      <p><strong>Target metrics at end of Phase 2:</strong> $5,000,000 USDC in reserve pool TVL; 200 active policies; 50 active reviewer stakers; loss ratio within modelled range.</p>
+
+      <h3><span class="wp-num">9.3</span>Phase 3 · Multi-Chain Expansion and Token Launch</h3>
+      <p>Phase 3 deepens Regore's Solana integration — expanding oracle coverage, adding Solana-native yield strategies for the reserve pool, and launching the REGR governance token. An enterprise licensing programme is introduced for companies deploying AI agents that require on-chain-verifiable insurance indemnity for regulatory compliance.</p>
+      <p><strong>Target metrics at end of Phase 3:</strong> $50,000,000 USDC in reserve pool TVL; 2,000 active policies on Solana; REGR governance fully active.</p>
+
+      <!-- 10. Financial Model -->
+      <h2><span class="wp-num">10</span>Financial Model</h2>
+
+      <h3><span class="wp-num">10.1</span>Revenue Projections</h3>
+      <p>The following projections are based on base-case assumptions: blended monthly premium consistent with risk-adjusted pricing, 60% loss ratio, and reserve deployment yield of 5% APY. These assumptions are conservative relative to comparable DeFi insurance protocols.</p>
+      <div class="wp-table-wrap">
+        <table>
+          <thead><tr><th>Period</th><th>Active Policies</th><th>Reserve TVL</th><th>Annual Revenue</th></tr></thead>
+          <tbody>
+            <tr><td>Launch</td><td>10</td><td>$500K</td><td>$8,500</td></tr>
+            <tr><td>+3 months</td><td>40</td><td>$1.5M</td><td>$28,000</td></tr>
+            <tr><td>+6 months</td><td>100</td><td>$3M</td><td>$72,000</td></tr>
+            <tr><td>+12 months</td><td>200+</td><td>$5M+</td><td>$210,000+</td></tr>
+            <tr><td>+24 months</td><td>2,000+</td><td>$50M+</td><td>$2.1M+</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="wp-table-caption">Table 8 · Revenue Projections (Base Case)</div>
+
+      <h3><span class="wp-num">10.2</span>Use of Seed Funds</h3>
+      <p>The seed round will be allocated as follows:</p>
+      <div class="wp-table-wrap">
+        <table>
+          <thead><tr><th>Category</th><th>% of Round</th></tr></thead>
+          <tbody>
+            <tr><td>Engineering (smart contracts, oracle integration, security audit)</td><td>40%</td></tr>
+            <tr><td>Reserve pool seeding (initial LP capital)</td><td>25%</td></tr>
+            <tr><td>Business development and ecosystem relationships</td><td>20%</td></tr>
+            <tr><td>Operations, legal structure, and compliance</td><td>15%</td></tr>
+            <tr><td><strong>Total</strong></td><td><strong>100%</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="wp-table-caption">Table 9 · Use of Seed Proceeds</div>
+
+      <!-- 11. Team -->
+      <h2><span class="wp-num">11</span>Team</h2>
+
+      <h3><span class="wp-num">11.1</span>Current Team</h3>
+      <p>Regore was founded by a team with deep expertise in AI-agent infrastructure, DeFi protocol design, and product strategy. The founding team has built and shipped full-stack Web3 products from inception to deployment, with experience spanning financial advisory, product management, and blockchain development.</p>
+
+      <h3><span class="wp-num">11.2</span>Open Roles</h3>
+      <p>Regore is actively recruiting for two critical roles:</p>
+      <ul>
+        <li><strong>Chief Technology Officer / Co-Founder:</strong> senior smart-contract developer with demonstrated expertise in DeFi protocol architecture across high-performance chains. This person will own the smart-contract architecture, oracle integration, security-audit process, and devnet-to-mainnet deployment. Equity stake available; compensation benchmarked to market rates for senior protocol engineers.</li>
+        <li><strong>Head of Risk:</strong> actuarial background or DeFi insurance protocol experience. Will design and maintain the pricing model, calibrate reserve ratios, structure the reinsurance programme, and build the loss-ratio model from historical DeFi exploit data. Reporting to the CEO.</li>
+      </ul>
+      <p>Regore is seeking advisors from organisations including Nexus Mutual, leading reinsurance protocols, major oracle networks, Armilla AI, and prominent AI-agent protocols. Introductions to qualified candidates for open roles are welcomed.</p>
+
+      <!-- 12. Legal -->
+      <h2><span class="wp-num">12</span>Legal Structure and Regulatory Considerations</h2>
+
+      <h3><span class="wp-num">12.1</span>Decentralised Mutual Model</h3>
+      <p>Regore is structured as a decentralised risk-sharing mutual, not as a licensed insurance company. This structure — pioneered by Nexus Mutual and validated through several years of operation and regulatory scrutiny — does not require the protocol to hold an insurance licence in most jurisdictions because coverage is provided through a discretionary mutual rather than a regulated insurance contract. Members of the mutual purchase cover from a shared pool of capital contributed by other members and LP participants.</p>
+      <p>This structure is legally distinct from insurance in several important respects: coverage is discretionary (the protocol's smart contracts determine outcomes algorithmically rather than through contractual obligation), membership is open to any person meeting the registration criteria, and the mutual is governed by its token-holding members rather than by corporate directors. Regore's legal counsel is reviewing the applicability of this structure under relevant jurisdictions, with a focus on Singapore, the British Virgin Islands, and the Cayman Islands as potential domiciles for the protocol's legal entity.</p>
+
+      <h3><span class="wp-num">12.2</span>Disclaimers</h3>
+      <p>Regore does not offer licensed insurance products. Coverage provided by the Regore protocol is discretionary mutual coverage, not an insurance contract. Policyholders should be aware that the protocol's smart contracts, while subject to rigorous security auditing, may contain undiscovered vulnerabilities. Past performance of DeFi insurance protocols does not guarantee future performance of Regore. The REGR token is a utility and governance token and is not offered as a security or investment.</p>
+
+      <!-- 13. Conclusion -->
+      <h2><span class="wp-num">13</span>Conclusion</h2>
+      <p>The autonomous AI agent is the defining new participant in decentralised finance. These agents now control billions of dollars in assets, execute millions of transactions, and handle sensitive data at a scale and speed that no human operator can match. Yet they remain categorically uninsured — a gap that suppresses the legitimate deployment of capital, exposes operators to unhedgeable tail risk, and creates systemic fragility in an ecosystem that is otherwise rapidly maturing.</p>
+      <p>Regore addresses this gap with a precision-engineered, chain-native parametric insurance protocol. By combining decentralised oracle infrastructure with a rigorous staked-reviewer mechanism for non-parametric claims, Regore delivers coverage that settles in seconds for parametric events and within 72 hours for data-breach incidents — without brokers, adjusters, or paper forms.</p>
+      <p>The market opportunity is large, the competitive field is empty, and the technical infrastructure to build this product now exists on Solana. Regore is building the insurance layer that autonomous AI agents require and that the ecosystem urgently needs.</p>
+      <blockquote>"No AI agent should operate without coverage. Regore is building the infrastructure to make that the default."</blockquote>
+
+      <!-- Foot -->
+      <div class="wp-foot">
+        <div class="wp-foot-row"><a href="mailto:contact@regore.xyz">contact@regore.xyz</a> &nbsp;·&nbsp; regore.xyz</div>
+        <div class="wp-foot-row">Version 1.0 &nbsp;·&nbsp; Q2 2026 &nbsp;·&nbsp; Confidential</div>
+        <div class="wp-foot-row" style="margin-top:14px;color:var(--ink-faint)">© 2026 Regore Protocol</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ WALLET CONNECT MODAL ═══════════════════════════ -->
+<div class="ph-backdrop" id="phModal" onclick="if(event.target===this)closePhModal()">
+  <div class="ph-box">
+    <span class="ph-close" onclick="closePhModal()">✕</span>
+    <img class="ph-logo" id="phLogo" alt="Regore"/>
+    <div class="ph-title">Connect Wallet</div>
+    <div class="ph-sub">Connect your Web3 wallet to access the Regore protocol and manage coverage on-chain.</div>
+    <button class="ph-btn" id="phBtn" onclick="connectWallet()">
+      <div class="ph-btn-icon">⬢</div>
+      <div class="ph-btn-txt">
+        <div class="ph-btn-label">Connect Web3 Wallet</div>
+        <div class="ph-btn-sub" id="phBtnSub">Approve in your wallet</div>
+      </div>
+      <div class="ph-btn-arrow" id="phArrow">→</div>
+    </button>
+    <div class="ph-err" id="phErr"></div>
+    <div class="ph-no-wallet" id="phNoWallet">No compatible wallet detected. <a href="#" target="_blank">Install a Web3 wallet →</a></div>
+    <div class="ph-divider"><div class="ph-div-line"></div><div class="ph-div-txt">Multi-chain · Testnet</div><div class="ph-div-line"></div></div>
+    <div class="ph-badges">
+      <div class="ph-badge">Non-custodial</div>
+      <div class="ph-badge">Solana · USDC</div>
+      <div class="ph-badge">Oracle-verified</div>
+    </div>
+    <div class="ph-legal">Regore is a decentralized risk-sharing protocol — not licensed insurance. By connecting, you acknowledge the protocol terms.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ NAV ═══════════════════════════ -->
+<nav id="mainNav">
+  <a class="logo" href="#">
+    <img id="navLogo" src="images/logo-white.png" width="36" height="36" alt="Regore" style="flex-shrink:0;object-fit:contain;">
+    <div class="logo-wrap">
+      <span class="logo-name">REGORE</span>
+      <span class="logo-tag">Protocol · Testnet</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="https://claim.regore.xyz">File claim ↗</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#" onclick="openWhitepaper(event)">Whitepaper</a></li>
+  </ul>
+  <div class="nav-r">
+    <a class="btn-ghost" href="mailto:contact@regore.xyz">Contact</a>
+    <a class="btn-solid" href="#access" onclick="document.getElementById('access').scrollIntoView({behavior:'smooth'});event.preventDefault();">Request access<span>→</span></a>
+    <button class="hamburger" id="hambBtn" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mob-menu" id="mobMenu">
+  <ul>
+    <li><a href="#architecture" onclick="toggleMenu()">Architecture</a></li>
+    <li><a href="#pricing" onclick="toggleMenu()">Pricing</a></li>
+    <li><a href="https://claim.regore.xyz" onclick="toggleMenu()">File claim ↗</a></li>
+    <li><a href="#faq" onclick="toggleMenu()">FAQ</a></li>
+    <li><a href="#" onclick="event.preventDefault();toggleMenu();openWhitepaper(event)">Whitepaper</a></li>
+  </ul>
+  <div class="mob-menu-btns">
+    <a class="btn-ghost" href="mailto:contact@regore.xyz" onclick="toggleMenu()">Contact</a>
+    <a class="btn-solid" href="#access" onclick="toggleMenu();document.getElementById('access').scrollIntoView({behavior:'smooth'});event.preventDefault();">Request access →</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+<section class="hero">
+  <div class="hero-grid">
+
+    <!-- LEFT: editorial text -->
+    <div class="hero-left">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        <span>Pre-launch · Building toward mainnet</span>
+      </div>
+      <h1>
+        Parametric insurance infrastructure for autonomous agents.
+      </h1>
+      <p class="hero-lead">
+        Regore is the on-chain coverage layer for AI agents that move capital. Three parametric products — financial loss, per-transaction slippage, and data breach — engineered for oracle-verified, USDC-denominated settlement on Solana.
+      </p>
+      <div class="hero-ctas">
+        <button class="cta-p" onclick="document.getElementById('access').scrollIntoView({behavior:'smooth'})">Request early access<span class="arrow">→</span></button>
+        <a class="cta-s" href="#pricing">View pricing</a>
+      </div>
+    </div>
+
+    <!-- RIGHT: protocol design card -->
+    <div class="hero-right">
+      <div class="hero-card">
+        <div class="hero-card-head">
+          <div class="hc-title">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);flex-shrink:0;display:inline-block"></span>
+            Protocol · Design spec
+          </div>
+          <div class="hc-live"><span class="pulse"></span>Testnet</div>
+        </div>
+        <div class="hc-body">
+          <div class="hc-row">
+            <div class="hc-label">Coverage type</div>
+            <div class="hc-val"><span class="g">Parametric</span></div>
+          </div>
+          <div class="hc-row">
+            <div class="hc-label">Settlement asset</div>
+            <div class="hc-val">USDC<span class="u">on Solana</span></div>
+          </div>
+          <div class="hc-row">
+            <div class="hc-label">Financial loss limit</div>
+            <div class="hc-val"><span class="g">N/A*</span><span class="u">/ session</span></div>
+          </div>
+          <div class="hc-row">
+            <div class="hc-label">Per-trade max payout</div>
+            <div class="hc-val">N/A*<span class="u">/ tx</span></div>
+          </div>
+          <div class="hc-row">
+            <div class="hc-label">Oracle cycle</div>
+            <div class="hc-val">60<span class="u">seconds</span></div>
+          </div>
+          <div class="hc-row">
+            <div class="hc-label">Target reserve ratio</div>
+            <div class="hc-val"><span class="g">1.5×</span></div>
+          </div>
+          <div class="hc-row">
+            <div class="hc-label">Settlement target</div>
+            <div class="hc-val"><span class="g">&lt; 60s</span><span class="u">parametric</span></div>
+          </div>
+        </div>
+        <div style="padding:14px 22px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between">
+          <span style="font-family:var(--mono);font-size:9.5px;color:var(--ink-faint);letter-spacing:.1em;text-transform:uppercase">Smart contracts · [Network]</span>
+          <a href="#architecture" style="font-family:var(--mono);font-size:9.5px;color:var(--accent);letter-spacing:.1em;text-decoration:none">View architecture →</a>
+        </div>
+      </div>
+
+      <!-- Mini stat pills below card -->
+      <div class="hero-pills">
+        <div class="hero-pill"><span class="pill-dot" style="background:var(--accent)"></span>No claim filing</div>
+        <div class="hero-pill"><span class="pill-dot" style="background:var(--sol)"></span>Oracle-verified</div>
+        <div class="hero-pill"><span class="pill-dot" style="background:var(--blue)"></span>Stablecoin settlement</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom strip: ecosystem partners -->
+  <div class="hero-bottom">
+    <div class="hero-bottom-inner">
+      <span class="hero-bottom-label">Built on Solana</span>
+      <div class="hero-bottom-logos">
+        <div class="trust-item"><span class="mark" style="background:linear-gradient(135deg,#14F195,#9945FF)"></span>Solana</div>
+        <div class="trust-item"><span class="mark" style="background:linear-gradient(135deg,#2775CA,#1DA1F2)"></span>USDC</div>
+        <div class="trust-item"><span class="mark" style="background:linear-gradient(135deg,#14F195,#0CB1A3)"></span>Anchor</div>
+        <div class="trust-item"><span class="mark" style="background:linear-gradient(135deg,#9945FF,#14F195)"></span>Phantom</div>
+      </div>
+      <div class="hero-scroll-cue">
+        <span style="font-family:var(--mono);font-size:9px;color:var(--ink-faint);letter-spacing:.18em;text-transform:uppercase">Scroll</span>
+        <span class="hero-scroll-arrow">↓</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════ ARCHITECTURE ═══════════════════════════ -->
+<section class="sec-full" id="architecture">
+  <div class="inn">
+    <div class="sec-head reveal">
+      <div class="eyebrow">01 — Protocol architecture</div>
+      <h2>From policy inception to payout, <em>every step is on-chain.</em></h2>
+      <p class="sec-sub">No intermediaries. No manual review for parametric triggers. No counterparty risk. The same on-chain infrastructure that settles DeFi trades settles your coverage.</p>
+    </div>
+    <div class="arch-wrap reveal">
+      <div class="arch-flow">
+        <div class="arch-step">
+          <div class="arch-head">
+            <span class="arch-n">01</span>
+            <span class="arch-dur">~30s</span>
+          </div>
+          <div class="arch-title">Register agent</div>
+          <div class="arch-desc">Connect a Web3 wallet. Register the AI agent's wallet address. Select coverage type. For data breach policies, the log hash is committed on-chain at inception.</div>
+          <div class="arch-meta">
+            <div class="arch-meta-r"><span class="k">Layer</span><span class="v">Smart contract</span></div>
+            <div class="arch-meta-r"><span class="k">Tx cost</span><span class="v">Sub-cent</span></div>
+          </div>
+        </div>
+        <div class="arch-step">
+          <div class="arch-head">
+            <span class="arch-n">02</span>
+            <span class="arch-dur">Instant</span>
+          </div>
+          <div class="arch-title">Premium in USDC</div>
+          <div class="arch-desc">Monthly or per-trade premiums are deducted in USDC. A 10% co-insurance deposit is locked in escrow. Risk-based pricing is computed on-chain from agent autonomy and capital under management.</div>
+          <div class="arch-meta">
+            <div class="arch-meta-r"><span class="k">Settlement</span><span class="v">USDC</span></div>
+            <div class="arch-meta-r"><span class="k">Escrow</span><span class="v">10% co-insurance</span></div>
+          </div>
+        </div>
+        <div class="arch-step">
+          <div class="arch-head">
+            <span class="arch-n">03</span>
+            <span class="arch-dur">Continuous</span>
+          </div>
+          <div class="arch-title">Oracle monitoring</div>
+          <div class="arch-desc">Wallet oracles read agent balances on 60-second intervals. Per-trade agents are monitored on every transaction. Data breach agents produce signed operational logs throughout the policy period.</div>
+          <div class="arch-meta">
+            <div class="arch-meta-r"><span class="k">Price feed</span><span class="v">Decentralized</span></div>
+            <div class="arch-meta-r"><span class="k">Wallet feed</span><span class="v">On-chain oracle</span></div>
+          </div>
+        </div>
+        <div class="arch-step">
+          <div class="arch-head">
+            <span class="arch-n">04</span>
+            <span class="arch-dur">Target: &lt;60s</span>
+          </div>
+          <div class="arch-title">Parametric payout</div>
+          <div class="arch-desc">Financial loss and per-trade payouts are designed to trigger automatically on oracle confirmation. For data breach: evidence is submitted, staked reviewers vote, and USDC transfers on 3-of-5 approval within 72 hours.</div>
+          <div class="arch-meta">
+            <div class="arch-meta-r"><span class="k">Trigger</span><span class="v">Automatic</span></div>
+            <div class="arch-meta-r"><span class="k">Payout</span><span class="v">USDC to wallet</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ INFRASTRUCTURE ═══════════════════════════ -->
+<section class="sec" id="infrastructure">
+  <div class="sec-head reveal">
+    <div class="eyebrow">02 — Risk scoring &amp; claims adjudication</div>
+    <h2>Risk scored at inception. <em>Claims adjudicated by an AI tribunal.</em></h2>
+    <p class="sec-sub">Every policy is priced on a transparent, on-chain risk score derived from the agent's behavior. When a claim is filed, it is routed to a three-agent DAO tribunal — each agent reasoning from a distinct lens — that reaches a verdict before any payout is approved.</p>
+  </div>
+
+  <!-- ── Part 1: Risk scoring underwriting layer ────────────────── -->
+  <div class="infra-grid reveal">
+    <div class="infra-left" style="display:block">
+      <div class="infra-feat" style="padding:36px 38px">
+        <div class="infra-feat-head" style="margin-bottom:18px">
+          <div class="infra-icon" style="width:42px;height:42px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+          </div>
+          <div>
+            <div style="font-family:var(--mono);font-size:9.5px;color:var(--accent);letter-spacing:.18em;text-transform:uppercase;font-weight:600;margin-bottom:4px">Underwriting layer</div>
+            <h4 style="font-size:22px">On-chain risk scoring at policy inception</h4>
+          </div>
+        </div>
+        <p style="font-size:14px;margin-bottom:22px">Premiums are not flat-rated. At policy inception, each agent receives a risk score computed on-chain from a weighted blend of behavioral and structural inputs. The score determines pricing, coverage limits, and any required co-insurance — and updates as new on-chain evidence accumulates.</p>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px 28px;font-family:var(--mono);font-size:11.5px;color:var(--ink-dim);line-height:1.55">
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--accent);font-weight:700;flex-shrink:0">→</span><span><strong style="color:var(--ink);font-weight:500;font-family:var(--sans);font-size:12.5px">Capital under management</strong><br/>relative to operator's historical baseline</span></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--accent);font-weight:700;flex-shrink:0">→</span><span><strong style="color:var(--ink);font-weight:500;font-family:var(--sans);font-size:12.5px">Autonomy level</strong><br/>degree of human oversight in the decision loop</span></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--accent);font-weight:700;flex-shrink:0">→</span><span><strong style="color:var(--ink);font-weight:500;font-family:var(--sans);font-size:12.5px">Data sensitivity</strong><br/>classification of information the agent handles</span></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--accent);font-weight:700;flex-shrink:0">→</span><span><strong style="color:var(--ink);font-weight:500;font-family:var(--sans);font-size:12.5px">On-chain history</strong><br/>execution patterns, prior incidents, counterparty graph</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Part 2: DAO tribunal divider ──────────────────────────── -->
+  <div class="reveal" style="margin-top:60px;display:flex;align-items:center;gap:18px">
+    <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line-3),transparent)"></div>
+    <span style="font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.22em;text-transform:uppercase;font-weight:600">When a claim is filed</span>
+    <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line-3),transparent)"></div>
+  </div>
+
+  <!-- Tribunal intro -->
+  <div class="reveal" style="text-align:center;max-width:680px;margin:28px auto 40px">
+    <div style="font-family:var(--serif);font-size:clamp(22px,2.6vw,30px);font-weight:500;letter-spacing:-.015em;line-height:1.25;color:var(--ink);margin-bottom:14px">A submitted claim is routed to a three-agent DAO tribunal.</div>
+    <p style="font-size:14px;color:var(--ink-dim);font-weight:300;line-height:1.65">Each agent evaluates the claim through a different lens — moral reasoning, ethical accountability, and quantitative risk. A consensus across all three lenses must be reached before stablecoin is released from the reserve pool.</p>
+  </div>
+
+  <!-- ── 3-agent tribunal grid ────────────────────────────────── -->
+  <div class="tri-grid reveal-stagger">
+
+    <div class="tri-card" data-tri="phi">
+      <div class="tri-head">
+        <div class="tri-num">Agent 01</div>
+        <div class="tri-role">The Philosopher</div>
+      </div>
+      <div class="tri-icon-wrap">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="24" cy="24" r="20"/>
+          <path d="M16 30c2-4 5-7 8-7s6 3 8 7"/>
+          <circle cx="18" cy="20" r="1.5" fill="currentColor"/>
+          <circle cx="30" cy="20" r="1.5" fill="currentColor"/>
+          <path d="M24 4v6M24 38v6M4 24h6M38 24h6"/>
+        </svg>
+      </div>
+      <h3 class="tri-title">First-principles reasoning</h3>
+      <p class="tri-desc">Evaluates the claim against the foundational logic of the protocol: was the loss event genuinely covered? Does the operator's evidence align with the spirit of the policy, not just its literal terms? Surfaces edge cases that a strict-rule check would miss.</p>
+      <ul class="tri-list">
+        <li>Interrogates intent &amp; coverage scope</li>
+        <li>Tests evidence against precedent</li>
+        <li>Flags philosophical edge cases</li>
+      </ul>
+    </div>
+
+    <div class="tri-card" data-tri="eth">
+      <div class="tri-head">
+        <div class="tri-num">Agent 02</div>
+        <div class="tri-role">The Ethicist</div>
+      </div>
+      <div class="tri-icon-wrap">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M24 4v40"/>
+          <path d="M14 14L8 28h12L14 14z"/>
+          <path d="M34 14l-6 14h12l-6-14z"/>
+          <path d="M8 28a6 6 0 0 0 12 0"/>
+          <path d="M28 28a6 6 0 0 0 12 0"/>
+          <circle cx="24" cy="6" r="2" fill="currentColor"/>
+        </svg>
+      </div>
+      <h3 class="tri-title">Accountability &amp; fairness</h3>
+      <p class="tri-desc">Audits the moral weight of the claim: was the agent operated responsibly? Are there third parties harmed by the loss event whose interests must be considered? Detects potential moral hazard, bad-faith claims, and externalities the protocol must price in.</p>
+      <ul class="tri-list">
+        <li>Audits operator conduct &amp; duty of care</li>
+        <li>Weighs third-party impact</li>
+        <li>Detects moral hazard signals</li>
+      </ul>
+    </div>
+
+    <div class="tri-card" data-tri="rsk">
+      <div class="tri-head">
+        <div class="tri-num">Agent 03</div>
+        <div class="tri-role">The Risk Manager</div>
+      </div>
+      <div class="tri-icon-wrap">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6" y="20" width="6" height="22"/>
+          <rect x="16" y="14" width="6" height="28"/>
+          <rect x="26" y="8" width="6" height="34"/>
+          <rect x="36" y="22" width="6" height="20"/>
+          <path d="M4 6l8 6 8-4 8 8 8-10 8 6"/>
+        </svg>
+      </div>
+      <h3 class="tri-title">Quantitative adjudication</h3>
+      <p class="tri-desc">Plays the traditional insurance adjuster role with on-chain rigor: validates the loss against oracle data, computes appropriate payout sizing within policy limits, models the impact on reserve solvency, and confirms the claim is consistent with the agent's risk score at inception.</p>
+      <ul class="tri-list">
+        <li>Validates loss against oracle evidence</li>
+        <li>Computes payout sizing &amp; reserve impact</li>
+        <li>Cross-references the inception risk score</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Verdict / consensus rule -->
+  <div class="reveal" style="margin-top:40px;padding:22px 28px;border:1px solid var(--line-2);border-radius:var(--r-md);background:linear-gradient(135deg,rgba(14,129,129,.05),rgba(5,15,15,.4));display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+    <div style="flex-shrink:0;width:36px;height:36px;border-radius:50%;background:rgba(14,129,129,.08);border:1px solid rgba(14,129,129,.3);display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:700;font-family:var(--mono);font-size:13px">3/3</div>
+    <div style="flex:1;min-width:280px">
+      <div style="font-family:var(--serif);font-size:18px;font-weight:500;color:var(--ink);margin-bottom:4px;letter-spacing:-.01em">Consensus required for payout.</div>
+      <div style="font-family:var(--mono);font-size:11.5px;color:var(--ink-dim);letter-spacing:.02em;line-height:1.55">All three agents must reach an aligned verdict before stablecoin transfers from the reserve pool. Disagreements escalate to DAO governance for token-weighted resolution.</div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════ FILE A CLAIM ═══════════════════════════ -->
+<section class="sec" id="file-claim" style="border-top:1px solid var(--line)">
+  <div class="sec-head reveal">
+    <div class="eyebrow">03 — File a claim</div>
+    <h2>Ready to file? <em>The tribunal is waiting.</em></h2>
+    <p class="sec-sub">Claims are filed on a dedicated page. Financial loss and per-trade payouts trigger automatically — no filing needed. Misconduct, protocol violation, and strategy failure claims are routed to the three-agent DAO tribunal.</p>
+  </div>
+  <div class="reveal" style="display:flex;flex-wrap:wrap;gap:16px;margin-top:8px">
+    <div style="flex:1;min-width:280px;background:linear-gradient(160deg,rgba(5,20,20,.9),rgba(5,15,15,.7));border:1px solid var(--line-2);border-radius:var(--r-md);padding:28px 32px">
+      <div style="font-family:var(--mono);font-size:9.5px;color:var(--green);letter-spacing:.16em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block"></span>Parametric · auto-trigger</div>
+      <div style="font-family:var(--serif);font-size:20px;color:var(--ink);margin-bottom:8px">Financial loss &amp;<br/>per-trade cover</div>
+      <div style="font-size:13px;color:var(--ink-dim);line-height:1.6;margin-bottom:20px">These claim types are triggered automatically by the oracle when thresholds are crossed. No manual filing required — payouts settle in USDC within 72 hours.</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--ink-muted);padding:10px 14px;border:1px solid var(--line);border-radius:var(--r-sm);background:rgba(5,15,15,.4)">Automatic settlement on oracle trigger</div>
+    </div>
+    <div style="flex:1;min-width:280px;background:linear-gradient(160deg,rgba(5,20,20,.9),rgba(5,15,15,.7));border:1px solid var(--line-2);border-radius:var(--r-md);padding:28px 32px;display:flex;flex-direction:column">
+      <div style="font-family:var(--mono);font-size:9.5px;color:var(--accent-bright);letter-spacing:.16em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px"><span style="width:6px;height:6px;border-radius:50%;background:var(--accent-bright);display:inline-block"></span>Tribunal · DAO review</div>
+      <div style="font-family:var(--serif);font-size:20px;color:var(--ink);margin-bottom:8px">Misconduct, protocol<br/>&amp; strategy claims</div>
+      <div style="font-size:13px;color:var(--ink-dim);line-height:1.6;margin-bottom:20px">These require evidence submission and are reviewed by the three-agent DAO panel — Philosopher, Ethicist, and Risk Adjudicator — before a consensus verdict is issued on-chain.</div>
+      <div style="margin-top:auto">
+        <a href="https://claim.regore.xyz" style="display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--bg);background:linear-gradient(135deg,#0FA882 0%,#0E8181 50%,#0A6B5E 100%);border:1px solid rgba(14,168,130,.5);border-radius:var(--r-sm);padding:11px 22px;text-decoration:none;font-weight:600;transition:all .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+          File a claim →
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PRICING ═══════════════════════════ -->
+  <div class="claim-inner">
+
+    <div class="sec-head reveal" style="margin-bottom:40px">
+      <div class="eyebrow">03 — File a claim</div>
+      <h2>Submit a claim. <em>The tribunal decides.</em></h2>
+      <p class="sec-sub">For data breach claims, evidence is submitted here and routed to the three-agent DAO tribunal. Financial loss and per-trade payouts trigger automatically — no filing required.</p>
+    </div>
+
+    <!-- Step tracker -->
+    <div class="claim-steps reveal" id="claimStepTracker">
+      <div class="claim-step-item active" id="cst-1"><div class="claim-step-num">01</div>Agent</div>
+      <div class="claim-step-sep"></div>
+      <div class="claim-step-item" id="cst-2"><div class="claim-step-num">02</div>Type</div>
+      <div class="claim-step-sep"></div>
+      <div class="claim-step-item" id="cst-3"><div class="claim-step-num">03</div>Evidence</div>
+      <div class="claim-step-sep"></div>
+      <div class="claim-step-item" id="cst-4"><div class="claim-step-num">04</div>Review</div>
+    </div>
+
+    <div class="claim-body reveal">
+
+      <!-- ── LEFT: form card ── -->
+      <div class="claim-card">
+        <div class="claim-card-head">
+          <div class="claim-card-title">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="1" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M4 6h4M4 4h4M4 8h2" stroke="currentColor" stroke-width="1.2"/></svg>
+            Claim submission
+          </div>
+          <div class="hc-live"><div class="pulse"></div>Testnet</div>
+        </div>
+
+        <!-- Step 1: Agent identity -->
+        <div class="claim-step-panel active" id="csp-1">
+          <div class="cf-field">
+            <label class="cf-label" for="cf-agent-id">Agent ID</label>
+            <input class="cf-input" id="cf-agent-id" type="text" placeholder="agt_..." autocomplete="off" spellcheck="false">
+            <div class="cf-err" id="cf-err-agent">Agent ID is required</div>
+          </div>
+          <div class="cf-field">
+            <label class="cf-label" for="cf-wallet">Agent wallet address</label>
+            <input class="cf-input" id="cf-wallet" type="text" placeholder="Solana public key" spellcheck="false">
+            <div class="cf-err" id="cf-err-wallet">Wallet address is required</div>
+          </div>
+          <div class="cf-field">
+            <label class="cf-label" for="cf-submitter">Submitted by</label>
+            <input class="cf-input" id="cf-submitter" type="text" placeholder="Operator, auditor, or entity name">
+          </div>
+          <div class="claim-nav">
+            <span></span>
+            <button class="claim-btn-next" onclick="claimNext(2)">Agent details &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Claim type & amount -->
+        <div class="claim-step-panel" id="csp-2">
+          <div class="cf-field">
+            <label class="cf-label">Coverage type</label>
+            <div class="ctype-grid">
+              <div class="ctype-pill" data-type="loss_event" onclick="claimSelectType(this)">
+                <div class="ctype-pill-icon">&#x21E9;</div>
+                <div style="flex:1">
+                  <div class="ctype-pill-name">Financial loss</div>
+                  <div class="ctype-pill-desc">Wallet-level drawdown — typically auto-triggered by oracle</div>
+                </div>
+                <span class="ctype-pill-badge badge-auto">Auto</span>
+              </div>
+              <div class="ctype-pill" data-type="execution_failure" onclick="claimSelectType(this)">
+                <div class="ctype-pill-icon">&#x26A0;</div>
+                <div style="flex:1">
+                  <div class="ctype-pill-name">Execution failure</div>
+                  <div class="ctype-pill-desc">Per-trade slippage or execution error</div>
+                </div>
+                <span class="ctype-pill-badge badge-auto">Auto</span>
+              </div>
+              <div class="ctype-pill" data-type="misconduct" onclick="claimSelectType(this)">
+                <div class="ctype-pill-icon">&#x26D4;</div>
+                <div style="flex:1">
+                  <div class="ctype-pill-name">Misconduct</div>
+                  <div class="ctype-pill-desc">Operator or protocol-level rule violation</div>
+                </div>
+                <span class="ctype-pill-badge badge-hybrid">Tribunal</span>
+              </div>
+              <div class="ctype-pill" data-type="protocol_violation" onclick="claimSelectType(this)">
+                <div class="ctype-pill-icon">&#x1F6E1;</div>
+                <div style="flex:1">
+                  <div class="ctype-pill-name">Protocol violation</div>
+                  <div class="ctype-pill-desc">Smart contract or oracle failure</div>
+                </div>
+                <span class="ctype-pill-badge badge-hybrid">Tribunal</span>
+              </div>
+              <div class="ctype-pill" data-type="strategy_failure" onclick="claimSelectType(this)">
+                <div class="ctype-pill-icon">&#x1F9E0;</div>
+                <div style="flex:1">
+                  <div class="ctype-pill-name">Strategy failure</div>
+                  <div class="ctype-pill-desc">Agent behavioral drift or model failure</div>
+                </div>
+                <span class="ctype-pill-badge badge-hybrid">Tribunal</span>
+              </div>
+            </div>
+            <div class="cf-err" id="cf-err-type">Select a claim type</div>
+          </div>
+          <div class="cf-row">
+            <div class="cf-field">
+              <label class="cf-label" for="cf-amount">Amount claimed (SOL)</label>
+              <input class="cf-input" id="cf-amount" type="number" step="0.001" min="0.001" placeholder="e.g. 12.5">
+              <div class="cf-err" id="cf-err-amount">Enter a valid amount</div>
+            </div>
+            <div class="cf-field">
+              <label class="cf-label" for="cf-incident">Incident date</label>
+              <input class="cf-input" id="cf-incident" type="date">
+            </div>
+          </div>
+          <div class="claim-nav">
+            <button class="claim-btn-back" onclick="claimBack(1)">&larr; Back</button>
+            <button class="claim-btn-next" onclick="claimNext(3)">Add evidence &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Description & evidence -->
+        <div class="claim-step-panel" id="csp-3">
+          <div class="cf-field">
+            <label class="cf-label" for="cf-description">Describe the incident</label>
+            <textarea class="cf-textarea" id="cf-description" rows="4" placeholder="What happened — when, what the agent did, what loss was incurred, and any relevant on-chain context."></textarea>
+            <div class="cf-err" id="cf-err-desc">Minimum 30 characters required</div>
+          </div>
+          <div class="cf-field">
+            <label class="cf-label">Supporting evidence</label>
+            <div class="ev-list" id="cf-ev-list"></div>
+            <div class="cf-row">
+              <select class="cf-select" id="cf-ev-type">
+                <option value="tx_hash">Tx hash</option>
+                <option value="screenshot">Screenshot URL</option>
+                <option value="log_export">Log export</option>
+                <option value="external_audit">External audit</option>
+                <option value="oracle_data">Oracle data</option>
+              </select>
+              <input class="cf-input" id="cf-ev-val" type="text" placeholder="Value or URL">
+            </div>
+            <button class="claim-btn-back" style="margin-top:8px;width:100%;text-align:center;letter-spacing:.1em;font-size:10px" onclick="claimAddEvidence()">+ Add evidence item</button>
+          </div>
+          <div class="claim-nav">
+            <button class="claim-btn-back" onclick="claimBack(2)">&larr; Back</button>
+            <button class="claim-btn-next" onclick="claimNext(4)">Review claim &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 4: Review & submit -->
+        <div class="claim-step-panel" id="csp-4">
+          <div id="cf-review-body">
+            <table class="review-table">
+              <tr><td>Agent ID</td><td id="rv-agent">—</td></tr>
+              <tr><td>Wallet</td><td id="rv-wallet">—</td></tr>
+              <tr><td>Submitted by</td><td id="rv-submitter">—</td></tr>
+              <tr><td>Type</td><td id="rv-type">—</td></tr>
+              <tr><td>Amount</td><td id="rv-amount">—</td></tr>
+              <tr><td>Incident</td><td id="rv-incident">—</td></tr>
+              <tr><td>Description</td><td id="rv-desc" style="white-space:pre-wrap;max-height:80px;overflow:hidden;text-overflow:ellipsis">—</td></tr>
+              <tr><td>Evidence</td><td id="rv-evidence">—</td></tr>
+            </table>
+            <div style="margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-sm);background:rgba(5,15,15,.4);font-family:var(--mono);font-size:10px;color:var(--ink-muted);line-height:1.6;letter-spacing:.03em">
+              Submitting sets claim status to <span style="color:var(--accent)">pending</span>. Data breach and tribunal claims are routed to the three-agent DAO panel. Parametric claims trigger on next oracle cycle. The 10% co-insurance escrow must be on deposit.
+            </div>
+          </div>
+          <!-- Success state (replaces review body) -->
+          <div class="claim-success" id="cf-success">
+            <div class="success-check">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><polyline points="4 10 8 14 16 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="success-title">Claim submitted</div>
+            <div class="success-id" id="cf-success-id">CLM-TESTNET-0001</div>
+            <div class="success-note">Your claim has been registered and queued for tribunal review. You will receive an on-chain notification when the verdict is reached.</div>
+            <div class="success-actions">
+              <a href="#infrastructure" onclick="event.preventDefault();document.getElementById('infrastructure').scrollIntoView({behavior:'smooth'});" class="claim-btn-back" style="text-decoration:none">View tribunal</a>
+              <button class="claim-btn-next" onclick="claimReset()">File another</button>
+            </div>
+          </div>
+          <div class="claim-nav" id="cf-review-nav">
+            <button class="claim-btn-back" onclick="claimBack(3)">&larr; Back</button>
+            <button class="claim-btn-submit" onclick="claimSubmit()">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5h9M7.5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Submit claim
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── RIGHT: terminal preview ── -->
+      <div class="claim-terminal">
+        <div class="term-head">
+          <div class="term-dots">
+            <div class="term-dot" style="background:#E97070"></div>
+            <div class="term-dot" style="background:#F0B050"></div>
+            <div class="term-dot" style="background:#22D98A"></div>
+          </div>
+          <div class="term-title">API payload preview</div>
+        </div>
+        <div class="term-body">
+          <pre id="cf-term-pre"><span class="term-comment">// Payload updates as you type</span>
+<span class="term-comment">// POST /api/v1/claims</span>
+
+{
+  <span class="term-key">"agent_id"</span>: <span class="term-null">null</span>,
+  <span class="term-key">"claim_type"</span>: <span class="term-null">null</span>,
+  <span class="term-key">"amount_claimed"</span>: <span class="term-null">null</span>,
+  <span class="term-key">"description"</span>: <span class="term-null">null</span>,
+  <span class="term-key">"submitted_by"</span>: <span class="term-null">null</span>,
+  <span class="term-key">"evidence"</span>: []
+}</pre>
+        </div>
+        <div class="term-footer">
+          <div class="term-route">
+            <span class="term-method">POST</span>
+            <span class="term-path">/api/v1/claims</span>
+          </div>
+          <button class="term-copy-btn" onclick="claimCopyPayload()">Copy JSON</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PRICING ═══════════════════════════ -->
+<section class="sec" id="pricing">
+  <div class="sec-head reveal">
+    <div class="eyebrow">04 — Pricing</div>
+    <h2>Transparent, <em>risk-based pricing.</em></h2>
+    <p class="sec-sub">Premiums are designed to be computed on-chain from each agent's risk profile — autonomy level, capital under management, and on-chain behavior. Pricing is tailored to each design partner; reach out to discuss coverage that fits your operation.</p>
+  </div>
+  <div class="price-grid reveal-stagger">
+
+    <div class="price-c">
+      <div class="p-tier">Financial Loss</div>
+      <div class="p-tier-desc">Wallet-level drawdown coverage for session-bound or continuous operation.</div>
+      <div class="p-amt-wrap">
+        <div class="p-amt g" style="font-size:clamp(28px,3.2vw,42px)">Contact us</div>
+      </div>
+      <div class="p-period">For pricing details · up to $30K coverage</div>
+      <ul class="p-list">
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Fully parametric — no claim filing required</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Dual-oracle verification (price + wallet feed)</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Automatic USDC settlement on trigger</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Session or continuous coverage modes</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Cancel anytime — escrow returned in full</li>
+      </ul>
+      <div style="padding-top:20px"><a href="#access" onclick="event.preventDefault();document.getElementById('access').scrollIntoView({behavior:'smooth'});" class="pbtn pb-card-1">Request financial coverage →</a></div>
+    </div>
+
+    <div class="price-c">
+      <div class="p-tier">Per-Trade Cover</div>
+      <div class="p-tier-desc">Per-transaction slippage coverage for HFT and market-making agents.</div>
+      <div class="p-amt-wrap">
+        <div class="p-amt a" style="font-size:clamp(28px,3.2vw,42px)">Contact us</div>
+      </div>
+      <div class="p-period">For pricing details · $5K max per trade</div>
+      <ul class="p-list">
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="#F0B050" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Coverage on every transaction — no selection required</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="#F0B050" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Oracle-driven price delta — submission vs. execution</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="#F0B050" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Micro-premium deducted automatically</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="#F0B050" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Configurable slippage threshold (0.5–5%)</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="#F0B050" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>No monthly minimum commitment</li>
+      </ul>
+      <div style="padding-top:20px"><a href="#access" onclick="event.preventDefault();document.getElementById('access').scrollIntoView({behavior:'smooth'});" class="pbtn pb-card-2">Request per-trade coverage →</a></div>
+    </div>
+
+    <div class="price-c feat">
+      <div class="pop-flag">Most popular</div>
+      <div class="p-tier">Full Coverage Bundle</div>
+      <div class="p-tier-desc">Financial loss and data breach coverage, bundled for comprehensive agent protection.</div>
+      <div class="p-amt-wrap">
+        <div class="p-amt f" style="font-size:clamp(28px,3.2vw,42px)">Contact us</div>
+      </div>
+      <div class="p-period">For pricing details · $30K each policy</div>
+      <ul class="p-list">
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Everything in Financial Loss coverage</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Data Breach coverage up to $30K</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>On-chain log hash commitment</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>72-hour staked reviewer settlement</li>
+        <li><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>DAO governance escalation layer</li>
+      </ul>
+      <div style="padding-top:20px"><a href="#access" onclick="event.preventDefault();document.getElementById('access').scrollIntoView({behavior:'smooth'});" class="pbtn pb-fill">Request full coverage →</a></div>
+    </div>
+
+  </div>
+
+  <!-- Early access / Design partners / Investors — anchor for Request Access CTAs -->
+  <div class="reveal" id="access" style="margin-top:32px;padding:40px 40px;border:1px solid var(--line-2);border-radius:var(--r-md);background:linear-gradient(135deg,rgba(14,20,40,.75),rgba(5,15,15,.5));position:relative;overflow:hidden">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 90% 50%,rgba(14,129,129,.06),transparent 60%);pointer-events:none"></div>
+    <div style="position:relative;display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center">
+      <div>
+        <div class="eyebrow" style="margin-bottom:14px">Pre-launch · Raising</div>
+        <div style="font-family:var(--serif);font-size:28px;font-weight:500;margin-bottom:14px;letter-spacing:-.02em;line-height:1.15">Building toward mainnet.<br/><em style="font-style:italic;font-weight:400;color:var(--ink-dim)">Open to design partners and investors.</em></div>
+        <div style="font-size:14.5px;color:var(--ink-dim);font-weight:300;line-height:1.65;max-width:540px">We're currently live on testnet, working toward mainnet, and partnering with a small group of design partners — teams operating autonomous agents who help us stress-test coverage parameters before launch. We're also actively in conversation with investors aligned on on-chain risk infrastructure.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <a href="mailto:contact@regore.xyz?subject=Design%20Partner%20Interest" class="pbtn pb-fill" style="text-decoration:none">Become a design partner →</a>
+        <a href="mailto:contact@regore.xyz?subject=Investor%20Inquiry" class="pbtn pb-out" style="text-decoration:none">Investor inquiries →</a>
+        <a href="mailto:contact@regore.xyz" class="pbtn pb-out" style="text-decoration:none;border-color:var(--line-2)">General contact</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FAQ ═══════════════════════════ -->
+<section class="sec-full" id="faq" style="border-top:1px solid var(--line)">
+  <div class="inn">
+    <div class="faq-grid">
+      <div class="faq-side reveal">
+        <div class="eyebrow">05 — FAQ</div>
+        <h2>Questions, <em>answered.</em></h2>
+        <p>Common questions about the protocol, coverage triggers, payout mechanics, and LP participation. For anything not covered here, reach out directly.</p>
+        <a href="mailto:contact@regore.xyz" class="faq-contact">contact@regore.xyz →</a>
+      </div>
+      <div class="faq-list reveal">
+        <div class="faq-item">
+          <div class="faq-q" onclick="faq(this)">What is Regore's current status? <span class="faq-ic">+</span></div>
+          <div class="faq-a">Regore is pre-launch. The protocol is currently running on testnet, with core contracts implementing the coverage mechanics described on this site. We're actively raising a round, onboarding design partners, and finalizing our chain-and-deployment roadmap. Coverage limits, reserve ratios, and premiums shown here are design parameters — not live performance claims.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="faq(this)">Which blockchain is Regore built on? <span class="faq-ic">+</span></div>
+          <div class="faq-a">Regore is built on Solana. We chose Solana for its sub-second finality, near-zero transaction costs, and deep DeFi ecosystem — the same properties that make it the preferred environment for high-frequency AI agent activity. Core contracts are implemented in Rust using the Anchor framework.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="faq(this)">Is Regore licensed insurance? <span class="faq-ic">+</span></div>
+          <div class="faq-a">Regore is being built as a decentralized risk-sharing protocol, not a licensed insurance company. Coverage, once live, is intended to be provided through on-chain smart contracts governed by the protocol DAO — structurally similar to Nexus Mutual's discretionary mutual model. Users should review how their jurisdiction treats DeFi risk-sharing protocols before participating.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="faq(this)">How does financial loss payout work? <span class="faq-ic">+</span></div>
+          <div class="faq-a">When the agent's wallet balance drops below the threshold set at policy inception, an on-chain wallet oracle is designed to detect the loss, a price oracle calculates the USD-denominated amount, and the smart contract transfers USDC to the wallet automatically. No claim filing, no human review. The protocol's target settlement is within one oracle cycle; final on-chain performance will be published after mainnet launch.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="faq(this)">How does per-trade coverage work? <span class="faq-ic">+</span></div>
+          <div class="faq-a">Every time the agent submits a transaction, the policy contract is designed to record the oracle-reported price of the asset at submission. After execution, the contract compares the actual execution price to submission. If the negative delta (slippage plus adverse movement) exceeds the configured threshold, a USDC payout triggers automatically — capped at $5,000. A small per-transaction micro-premium is deducted from a pre-funded USDC deposit; reach out for current pricing tailored to your trade volume.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="faq(this)">What is the 30-day waiting period? <span class="faq-ic">+</span></div>
+          <div class="faq-a">New Financial Loss policies cannot file claims for the first 30 days, preventing coverage purchases after a known compromise event. Per-Trade Cover has no waiting period — it is active on the first trade. Data Breach policies require 30 days of pre-existing signed operation logs before coverage is issued.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="faq(this)">What is the co-insurance escrow? <span class="faq-ic">+</span></div>
+          <div class="faq-a">Policyholders lock 10% of their coverage limit (e.g. $3,000 on a $30K policy) at purchase. This amount is returned in full on cancellation or after an approved claim. It is forfeited entirely on fraudulent claims, and 50% on claims rejected for insufficient evidence. This creates real skin in the game with zero additional cost to honest claimants.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="faq(this)">Can I earn yield as a liquidity provider? <span class="faq-ic">+</span></div>
+          <div class="faq-a">The protocol design accepts USDC deposits into the reserve pool from external LPs. Premium flow is designed to route 15% to a surplus fund first, with the remainder distributed pro-rata to LPs. Specific yield sources, partner integrations, and target APY will be disclosed once mainnet launch parameters are finalized. A seven-day unbonding period is part of the current design.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="faq(this)">Is there a reinsurance backstop? <span class="faq-ic">+</span></div>
+          <div class="faq-a">The protocol design includes a parametric reinsurance tranche above native reserves, intended to absorb catastrophic drawdowns. Regore is actively exploring partnerships with crypto-native reinsurance providers. No commercial reinsurance agreement is in place at this time — we will publicly disclose partners as agreements are executed.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ CTA BAND ═══════════════════════════ -->
+<section class="cta-band">
+  <div class="cta-inner reveal">
+    <h2>The coverage layer for<br/>autonomous agents. <em>On-chain.</em></h2>
+    <p>Regore is pre-launch. If you're operating autonomous agents on-chain — or building the infrastructure they rely on — we'd like to talk. Design partners help shape the protocol before mainnet.</p>
+    <div class="cta-row">
+      <a href="mailto:contact@regore.xyz?subject=Design%20Partner%20Interest" class="cta-p" style="text-decoration:none">Request early access<span class="arrow">→</span></a>
+      <a class="cta-s" href="#faq">Read FAQ</a>
+    </div>
+    <div class="cta-legal">Testnet · Pre-launch · Building toward mainnet</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
+<footer>
+  <div class="ft-grid">
+    <div class="ft-brand-col">
+      <div class="ft-brand">
+        <img id="footerLogo" alt="Regore"/>
+        Regore
+      </div>
+      <div class="ft-tag">Pre-launch parametric insurance infrastructure for autonomous AI agents. Built on Solana. Oracle-verified, USDC-denominated coverage for AI agent operators. Currently on testnet.</div>
+      <div class="ft-badges">
+        <span class="ft-badge">Testnet</span>
+        <span class="ft-badge">Solana-native</span>
+        <span class="ft-badge">USDC-denominated</span>
+        <span class="ft-badge">Open-source (planned)</span>
+      </div>
+      <div class="ft-disc">Regore is a pre-launch decentralized risk-sharing protocol in active development — not a licensed insurance company. Coverage products described on this site are design specifications, not yet live. No policies are being sold. Coverage limits, premiums, reserve ratios, and settlement times are protocol design parameters and may change before mainnet launch. This site does not constitute an offer of insurance, financial advice, or legal advice, and is not a solicitation of securities. Not available where prohibited.</div>
+    </div>
+    <div class="ft-col">
+      <h5>Coverage</h5>
+      <ul class="ft-links">
+        <li><a href="#pricing">Financial Loss</a></li>
+        <li><a href="#pricing">Per-Trade Cover</a></li>
+        <li><a href="#pricing">Data Breach</a></li>
+        <li><a href="#pricing">Indicative pricing</a></li>
+        <li><a href="#access">Early access</a></li>
+      </ul>
+    </div>
+    <div class="ft-col">
+      <h5>Protocol</h5>
+      <ul class="ft-links">
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#infrastructure">DAO tribunal</a></li>
+        <li><a href="#file-claim">File a claim</a></li>
+        <li><a href="mailto:contact@regore.xyz">Documentation (coming)</a></li>
+        <li><a href="mailto:contact@regore.xyz">Governance (planned)</a></li>
+      </ul>
+    </div>
+    <div class="ft-col">
+      <h5>Resources</h5>
+      <ul class="ft-links">
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="#" onclick="openWhitepaper(event)">Whitepaper</a></li>
+        <li><a href="mailto:contact@regore.xyz">Press inquiries</a></li>
+        <li><a href="mailto:contact@regore.xyz">Brand kit (request)</a></li>
+      </ul>
+    </div>
+    <div class="ft-col">
+      <h5>Company</h5>
+      <ul class="ft-links">
+        <li><a href="mailto:contact@regore.xyz">Contact</a></li>
+        <li><a href="mailto:contact@regore.xyz">Design partners</a></li>
+        <li><a href="mailto:contact@regore.xyz">Investors</a></li>
+        <li><a href="#access">Get involved</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="ft-bot">
+    <div class="ft-copy">© 2026 Regore Protocol · All rights reserved</div>
+    <div class="ft-socials">
+      <a href="https://twitter.com/regore_io" target="_blank" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+      <a href="mailto:contact@regore.xyz" aria-label="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
+    </div>
+  </div>
+</footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+  <script src="js/main.js" defer></script>
+</body>
+</html>

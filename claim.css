@@ -1,0 +1,35 @@
+# /images
+
+Place all site images in this folder and reference them as `images/filename.ext` in HTML/CSS.
+
+## Current images
+
+| File | Used in | Notes |
+|---|---|---|
+| `favicon.png` | All pages | Browser tab icon + Apple touch icon |
+| `logo-white.png` | Landing · Claim | White logo for dark backgrounds (nav bar, whitepaper modal) |
+| `logo-nav.png` | Claim page | Nav bar logo |
+| `thumbnail.png` | OG meta tags | Social share preview (1200×630px). **Must be uploaded to root of deployment.** |
+
+## Adding images
+
+Drop any new image here and reference it in HTML:
+```html
+<img src="images/your-image.png" alt="Description"/>
+```
+
+Or in CSS:
+```css
+background-image: url('../images/your-image.png');
+```
+
+## Social share thumbnail
+
+`thumbnail.png` is referenced by `og:image` and `twitter:image` as:
+```
+https://regore.xyz/thumbnail.png
+```
+This requires the file to be deployed at the **root** of your Cloudflare Pages project,
+not inside the `/images` subfolder. Keep a copy at both locations:
+- `images/thumbnail.png` — for local reference
+- `thumbnail.png` — at root for production og:image resolution
